@@ -1,3 +1,5 @@
+
+#----------------------------------- Configuration -----------------------------------#
 # cloud-script.sh
 # use the following profile for all commands
 export AWS_PROFILE=frauholle;
@@ -6,6 +8,7 @@ export AWS_PROFILE=frauholle;
 aws configure set region eu-central-1 --profile $AWS_PROFILE
 aws configure set output json --profile $AWS_PROFILE
 
+#----------------------------------- VPC + Subnets -----------------------------------#
 # create VPC
 # --query traverses the returned JSON and returns filtered output as text. The VpcId is returned and stored in VPC_ID
 # --profile takes a valid local profile for credentials.
@@ -37,38 +40,20 @@ SN_DATA_ID=$(aws ec2 create-subnet \
     --query Subnet.SubnetId \
     --tag-specifications 'ResourceType=subnet, Tags=[{Key=Name, Value=cli-sn-data}]')
 
+#----------------------------------- Internetgateway Gateway -----------------------------------#
 # make sn-dmz public
 # create an internet gateway
+
 IGW_ID=$(aws ec2 create-internet-gateway \
+    --tag-specifications 'ResourceType=internet-gateway, Tags=[{Key=Name, Value=cli-igw}]'\
     --query InternetGateway.InternetGatewayId \
     --output text)
 
 # attach igw to the vpc
+
 aws ec2 attach-internet-gateway \
 --vpc-id $VPC_ID \
 --internet-gateway-id $IGW_ID
-
-# create a route table; route tables provide paths within the vpc, whereas security group filter traffic along existing paths
-# main route table for traffic within vpc
-RTB_MAIN =$(aws ec2 create-route-table \
-    --vcp-id $VPC_ID \
-    --query RouteTable.RouteTableId \
-    --output text)
-
-# custom route table for traffic in public subnet sn-dmz
-RTB_CUSTOM =$(aws ec2 create-route-table \
---vcp-id $VPC_ID \
---query RouteTable.RouteTableId \
---output text)
-
-#create a route to point all traffic to the internet gateway
-aws ec2 create-route \
---route-table-id $RTB_MAIN \
---destination-cidr-block 0.0.0.0/0 \
---gateway-id $IGW_ID
-
-#verify that route table exists
-aws ec2 describe-route-tables --route-table-id $RTB_MAIN
 
 #----------------------------------- NAT Gateway -----------------------------------#
 # allocate an elastic IP for nat-gateway and store the allocation-id
@@ -81,17 +66,82 @@ IP_ALL_ID_NAT =$(aws ec2 allocate-address \
 NAT_ID=$(aws ec2 create-nat-gateway \
     --subnet-id $SN_DMZ_ID \
     --allocation-id $IP_ALL_ID_NAT
-    --query 'NatGateway.NatGatwayId'
-    --output text
-    --tag-specifications 'ResourceType=natgateway, Tags=[{Key=Name, Value=cli-natgateway}]')
+    --tag-specifications 'ResourceType=natgateway, Tags=[{Key=Name, Value=cli-natgateway}]'\
+    --query 'NatGateway.NatGatwayId'\
+    --output text)
 
 # delete the nat, returns the id of the deleted nat
 aws ec2 delete-nat-gateway --nat-gateway-id $NAT_ID
 # release the disassociated elastic ip
 aws ec2 release-address $IP_ALL_ID_NAT
 
+#----------------------------------- create APP Routetable  -----------------------------------#
 
-#-----------------------------------  -----------------------------------#
+# create a route table; route tables provide paths within the vpc, whereas security group filter traffic along existing paths
+# main route table for traffic within vpc
+RTB_APP =$(aws ec2 create-route-table \
+    --vcp-id $VPC_ID \
+    --tag-specifications 'ResourceType=route-table, Tags=[{Key=Name, Value=cli-rtb-app}]'\
+    --query RouteTable.RouteTableId \
+    --output text)
+
+# create main route table to connect subnets to the internet via nat
+aws ec2 create-route \
+--route-table-id $RTB_APP
+--destination-cidr-block 0.0.0.0/0 \
+--gateway-id $NAT_ID
+
+# attach table to specific subnet
+aws ec2 associate-route-table --subnet-id $SN_APP_ID --route-table-id $RTB_APP
+
+#verify that route table exists
+aws ec2 describe-route-tables --route-table-id $RTB_APP
+
+#----------------------------------- create DMZ Routetable  -----------------------------------#
+
+# custom route table for traffic in public subnet sn-dmz
+RTB_DMZ =$(aws ec2 create-route-table \
+--vcp-id $VPC_ID \
+--tag-specifications 'ResourceType=route-table, Tags=[{Key=Name, Value=cli-rtb-dmz}]'\
+--query RouteTable.RouteTableId \
+--output text)
+
+#create a route for the custom routetable to point all traffic to the internet gateway
+aws ec2 create-route \
+--route-table-id $RTB_DMZ \
+--destination-cidr-block 0.0.0.0/0 \
+--gateway-id $IGW_ID
+
+# attach table to specific subnet
+aws ec2 associate-route-table --subnet-id $SN_DMZ_ID --route-table-id $RTB_DMZ
+
+#verify that route table exists
+aws ec2 describe-route-tables --route-table-id $RTB_DMZ
+
+#----------------------------------- create DATA Routetable  -----------------------------------#
+
+# custom route table for traffic in public subnet sn-dmz
+RTB_DATA =$(aws ec2 create-route-table \
+--vcp-id $VPC_ID \
+--tag-specifications 'ResourceType=route-table, Tags=[{Key=Name, Value=cli-rtb-data}]'\
+--query RouteTable.RouteTableId \
+--output text)
+
+#create a route for the custom routetable to point all traffic to the internet gateway
+aws ec2 create-route \
+--route-table-id $RTB_DATA \
+--destination-cidr-block 0.0.0.0/0 \
+--gateway-id $IGW_ID
+
+# attach table to specific subnet
+aws ec2 associate-route-table --subnet-id $SN_DATA_ID --route-table-id $RTB_DATA
+
+#verify that route table exists
+aws ec2 describe-route-tables --route-table-id $RTB_DATA
+
+#----------------------------------- create Security Group  -----------------------------------#
+
+
 
 
 IP_LB=
@@ -113,3 +163,6 @@ aws ec2 release-address --allocation-id $IP_ALL_ID_NAT
 #----------------------------------- Utilities -----------------------------------#
 # list all vpcs unfiltered
 aws ec2 describe-vpcs --query Vpcs.[0]
+
+# list all subnets of the specific vpc
+aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" --query "Subnets[*].{ID:SubnetId,CIDR:CidrBlock}"
