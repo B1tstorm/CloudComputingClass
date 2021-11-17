@@ -67,12 +67,49 @@ aws ec2 create-route \
 --destination-cidr-block 0.0.0.0/0 \
 --gateway-id $IGW_ID
 
-# allocate an elastic IP for nat-gateway
-IP_NAT =$()
-
-# create a nat gateway for outbound traffic
-aws ec2 create-nat-gateway --allocation-id 
-
 #verify that route table exists
 aws ec2 describe-route-tables --route-table-id $RTB_MAIN
 
+#----------------------------------- NAT Gateway -----------------------------------#
+# allocate an elastic IP for nat-gateway and store the allocation-id
+IP_ALL_ID_NAT =$(aws ec2 allocate-address \
+    --tag-specifications 'ResourceType=elastic-ip, Tags=[{Key=Name, Value=cli-eip-nat}]'
+    --query AllocationId \
+    --output text)
+
+# create a nat gateway for outbound traffic
+NAT_ID=$(aws ec2 create-nat-gateway \
+    --subnet-id $SN_DMZ_ID \
+    --allocation-id $IP_ALL_ID_NAT
+    --query 'NatGateway.NatGatwayId'
+    --output text
+    --tag-specifications 'ResourceType=natgateway, Tags=[{Key=Name, Value=cli-natgateway}]')
+
+# delete the nat, returns the id of the deleted nat
+aws ec2 delete-nat-gateway --nat-gateway-id $NAT_ID
+# release the disassociated elastic ip
+aws ec2 release-address $IP_ALL_ID_NAT
+
+
+#-----------------------------------  -----------------------------------#
+
+
+IP_LB=
+
+IP_BASTION=
+
+
+# associate IP and store the association-id
+IP_ASS_ID_NAT =$(aws ec2 allocate-address \
+    --query AssociationId \
+    --output text)
+
+# disassociate IP
+aws ec2 disassociate-address --association-id $IP_ASS_ID_NAT
+
+# release IP
+aws ec2 release-address --allocation-id $IP_ALL_ID_NAT
+
+#----------------------------------- Utilities -----------------------------------#
+# list all vpcs unfiltered
+aws ec2 describe-vpcs --query Vpcs.[0]
