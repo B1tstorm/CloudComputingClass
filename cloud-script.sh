@@ -283,3 +283,27 @@ aws ec2 describe-vpcs --query Vpcs.[0]
 aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" --query "Subnets[*].{ID:SubnetId,CIDR:CidrBlock}"
 
 # Man könnte auch mit describe-x Dinge anzeigen und sich die IP holen indem man nach einem bekannten Tag filtert anstatt alle IDs in Variablen zu speichern.
+
+
+
+# ----------------------------------- Assign EIP to instance -----------------------------------#
+
+IP_ALL_ID_INSTANCE_1=$(aws ec2 allocate-address \
+    --tag-specifications 'ResourceType=elastic-ip, Tags=[{Key=Name, Value=cli-eip-instance-1}]'\
+    --query AllocationId \
+    --output text)
+
+# associate IP and store the association-id
+IP_ASS_ID_INSTANCE_1=$(aws ec2 associate-address \
+    --instance-id $INSTANCE_ID_1 \
+    --allocation-id $IP_ALL_ID_INSTANCE_1 \
+    --query AssociationId \
+    --output text)
+
+# disassociate IP
+aws ec2 disassociate-address --association-id $IP_ASS_ID_INSTANCE_1
+
+# release IP
+aws ec2 release-address --allocation-id $IP_ALL_ID_INSTANCE_1
+
+
