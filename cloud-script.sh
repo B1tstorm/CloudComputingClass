@@ -149,6 +149,97 @@ aws ec2 describe-route-tables --route-table-id $RTB_DATA
 #----------------------------------- create Security Group  -----------------------------------#
 # security groups control inbound and outbound traffic for instances, whereas network ACLs control in and outbound traffic for subnets.
 
+#----------------------------------- save my ip into a variable
+MY_IP=$(curl https://checkip.amazonaws.com)
+
+#create a new security-group DMZ
+DMZ_SG=$(aws ec2 create-security-group \
+    --group-name dmz-sg \
+    --description "demilitarized zone"\
+    --vpc-id $VPC_ID \
+    --query GroupId \
+    --output text \
+    --tag-specifications 'ResourceType=security-group, Tags=[{Key=GroupName, Value=dmz-sg}]')
+
+#-----------------------------------  Allow my-ip to connect DMZ-SG via http und ssh
+aws ec2 authorize-security-group-ingress \
+--group-id $DMZ_SG \
+--protocol tcp \
+--port 22 \
+--cidr $MY_IP/32
+
+aws ec2 authorize-security-group-ingress \
+--group-id $DMZ_SG \
+--protocol tcp \
+--port 80 \
+--cidr $MY_IP/32
+
+
+#----------------------------------- create a new security-group APP and allow DMZ-SG to reach it via http and ssh
+APP_SG=$(aws ec2 create-security-group \
+    --group-name app-sg \
+    --description "APP SG"\
+    --vpc-id $SN_APP_ID \
+    --query GroupId \
+    --output text \
+    --tag-specifications 'ResourceType=security-group, Tags=[{Key=GroupName, Value=app-sg}]')
+
+# ----------------------------------- Allow DMZ-SG to connect APP-SG via http and ssh
+aws ec2 authorize-security-group-ingress \
+--group-id $APP_SG \
+--protocol tcp \
+--port 22 \
+--source-group $DMZ_SG
+#and the sec rule
+aws ec2 authorize-security-group-ingress \
+--group-id $APP_SG \
+--protocol tcp \
+--port 80 \
+--source-group $DMZ_SG
+
+
+
+#----------------------------------- create a new security-group DATA and allow APP-SG to reach it via SQL
+DATA_SG=$(aws ec2 create-security-group \
+    --group-name data-sg \
+    --description "DATA SG" \
+    --vpc-id $SN_DATA_ID \
+    --query GroupId \
+    --output text \
+    --tag-specifications 'ResourceType=security-group, Tags=[{Key=GroupName, Value=data-sg}]')
+
+# ----------------------------------- Allow APP-SG to connect DATA-SG via SQL
+aws ec2 authorize-security-group-ingress \
+--group-id $DATA_SG \
+--protocol tcp \
+--port 1433 \
+--source-group $APP_SG
+
+
+
+#---------------------------------- Erstelle einen ssh schlüssel
+aws ec2 create-key-pair --key-name App_KeyPair --query 'KeyMaterial' --output text > App_KeyPair.pem
+
+
+
+
+#----------------------------------- launch an EC2 Instance into SN-DMZ as well as DMZ-sg
+INSTANCE_ID=$(aws ec2 run-instances \
+    --image-id ami-0d5075a2643fdf738 \
+    --count 1 \
+    --instance-type t2.micro \
+    --key-name "App_KeyPair" \
+    --security-group-ids $DMZ_SG \
+    --subnet-id $SN_DMZ_ID \
+    #--user-data file://########## \
+    --tag-specifications 'ResourceType=instance, Tags=[{Key=InstanceName, Value=dmz-instance}]' \
+    --query 'Instances[0].InstanceId' \
+    --output text \
+    )
+
+#----------------------------------- um die Instance zu löschnen
+# $ aws ec2 terminate-instances --instance-ids $INSTANCE_ID
+
 
 
 
@@ -200,6 +291,8 @@ aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" --query "Subnets
 
 # Man könnte auch mit describe-x Dinge anzeigen und sich die IP holen indem man nach einem bekannten Tag filtert anstatt alle IDs in Variablen zu speichern.
 
+
+
 # ----------------------------------- Assign EIP to instance -----------------------------------#
 
 IP_ALL_ID_INSTANCE_1=$(aws ec2 allocate-address \
@@ -219,4 +312,5 @@ aws ec2 disassociate-address --association-id $IP_ASS_ID_INSTANCE_1
 
 # release IP
 aws ec2 release-address --allocation-id $IP_ALL_ID_INSTANCE_1
+
 
