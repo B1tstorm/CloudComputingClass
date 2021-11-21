@@ -217,14 +217,21 @@ aws ec2 authorize-security-group-ingress \
 
 
 
+#---------------------------------- Erstelle einen ssh schlüssel
+aws ec2 create-key-pair --key-name App_KeyPair --query 'KeyMaterial' --output text > App_KeyPair.pem
+
+
+
+
 #----------------------------------- launch an EC2 Instance into SN-DMZ as well as DMZ-sg
 INSTANCE_ID=$(aws ec2 run-instances \
     --image-id ami-0d5075a2643fdf738 \
     --count 1 \
     --instance-type t2.micro \
-    --key-name "MyKeyPair" \
+    --key-name "App_KeyPair" \
     --security-group-ids $DMZ_SG \
     --subnet-id $SN_DMZ_ID \
+    --user-data file://aws-ubuntu-v1.pkr.hcl.txt \
     --tag-specifications 'ResourceType=instance, Tags=[{Key=InstanceName, Value=dmz-instance}]' \
     --query 'Instances[0].InstanceId' \
     --output text \
