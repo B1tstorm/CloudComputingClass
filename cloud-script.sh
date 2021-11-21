@@ -53,7 +53,7 @@ IGW_ID=$(aws ec2 create-internet-gateway \
     --query InternetGateway.InternetGatewayId \
     --output text)
 
-# attach igw to the vpc
+# attach Internet Gateway to the vpc
 
 aws ec2 attach-internet-gateway \
 --vpc-id $VPC_ID \
@@ -322,4 +322,26 @@ aws ec2 disassociate-address --association-id $IP_ASS_ID_INSTANCE_1
 # release IP
 aws ec2 release-address --allocation-id $IP_ALL_ID_INSTANCE_1
 
+
+
+
+
+
+
+
+
+# ----------------------------------- allocate an elastic IP for Load Balancer and store the allocation-id
+IP_ALL_ID_LB=$(aws ec2 allocate-address \
+    --tag-specifications 'ResourceType=elastic-ip, Tags=[{Key=Name, Value=cli-eip-LB}]' \
+    --query AllocationId \
+    --output text)
+
+# ----------------------------------- Create a Loade Balancer -----------------------------------#
+LOAD_BALANCER_ARN=$(aws elbv2 create-load-balancer --name network-LB --type network --subnet-mappings SubnetId=$SN_DMZ_ID,AllocationId=$IP_ALL_ID_LB --query 'LoadBalancers[0].LoadBalancerArn'  --output text)
+
+TARGETGROUP_ARN=$(aws elbv2 create-target-group --name my-targets --protocol TCP --port 80 --vpc-id $VPC_ID --query 'TargetGroups[0].TargetGroupArn'  --output text)
+
+aws elbv2 register-targets --target-group-arn $TARGETGROUP_ARN --targets Id=$INSTANCE_ID
+
+aws elbv2 create-listener --load-balancer-arn $LOAD_BALANCER_ARN --protocol TCP --port 80  --default-actions Type=forward,TargetGroupArn=$TARGETGROUP_ARN
 
