@@ -231,7 +231,7 @@ INSTANCE_ID=$(aws ec2 run-instances \
     --key-name "App_KeyPair" \
     --security-group-ids $DMZ_SG \
     --subnet-id $SN_DMZ_ID \
-    --user-data file://aws-ubuntu-v1.pkr.hcl.txt \
+    #--user-data file://########## \
     --tag-specifications 'ResourceType=instance, Tags=[{Key=InstanceName, Value=dmz-instance}]' \
     --query 'Instances[0].InstanceId' \
     --output text \
