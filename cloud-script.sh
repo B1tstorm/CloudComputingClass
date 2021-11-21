@@ -174,7 +174,6 @@ aws ec2 authorize-security-group-ingress \
 --port 80 \
 --cidr $MY_IP/32
 
-
 #----------------------------------- create a new security-group APP and allow DMZ-SG to reach it via http and ssh
 APP_SG=$(aws ec2 create-security-group \
     --group-name app-sg \
@@ -220,18 +219,15 @@ aws ec2 authorize-security-group-ingress \
 #---------------------------------- Erstelle einen ssh schlüssel
 aws ec2 create-key-pair --key-name App_KeyPair --query 'KeyMaterial' --output text > App_KeyPair.pem
 
-
-
-
 #----------------------------------- launch an EC2 Instance into SN-DMZ as well as DMZ-sg
 INSTANCE_ID=$(aws ec2 run-instances \
     --image-id ami-0d5075a2643fdf738 \
     --count 1 \
     --instance-type t2.micro \
     --key-name "App_KeyPair" \
-    --security-group-ids $DMZ_SG \
-    --subnet-id $SN_DMZ_ID \
-    #--user-data file://########## \
+    --security-group-ids $APP_SG \
+    --subnet-id $SN_APP_ID \
+    --user-data file://cloud-init.sh \
     --tag-specifications 'ResourceType=instance, Tags=[{Key=InstanceName, Value=dmz-instance}]' \
     --query 'Instances[0].InstanceId' \
     --output text \
@@ -240,8 +236,21 @@ INSTANCE_ID=$(aws ec2 run-instances \
 #----------------------------------- um die Instance zu löschnen
 # $ aws ec2 terminate-instances --instance-ids $INSTANCE_ID
 
+#----------------------------------- launch an EC2 Instance into SN-DMZ as well as DMZ-sg
 
+ws ec2 create-key-pair --key-name bastion-key-pair --query 'KeyMaterial' --output text > bastion-key-pair.pem
 
+BASTION_EC2_ID=$(aws ec2 run-instances \
+    --image-id ami-0bd99ef9eccfee250 \
+    --count 1 \
+    --instance-type t2.micro \
+    --key-name "bastion-key-pair" \
+    --security-group-ids $DMZ_SG \
+    --subnet-id $SN_DMZ_ID \
+    --tag-specifications 'ResourceType=instance, Tags=[{Key=Name, Value=cli-bastion-instance}]' \
+    --query 'Instances[0].InstanceId' \
+    --output text \
+)
 
 
 
