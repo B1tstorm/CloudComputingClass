@@ -151,6 +151,30 @@ aws ec2 describe-route-tables --route-table-id $RTB_DATA
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 IP_LB=
 
 IP_BASTION=
