@@ -173,7 +173,7 @@ aws ec2 describe-route-tables --route-table-id $RTB_DATA
 
 
 
-
+aws ec2 describe-instances --query 'Reservations[*].Instances[*]'
 
 IP_LB=
 
