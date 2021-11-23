@@ -9,7 +9,7 @@ Format, validate the configuration & Overview
 ```terraform
 terraform fmt
 terraform validate
-terraform plan
+terraform plan # macht apply automatisch
 ```
 
 Create infrastructure
@@ -21,6 +21,13 @@ Inspect state
 ```terraform
 terraform show
 ```
+
+Inspect output values
+```terraform
+terraform output
+```
+>You can use Terraform outputs to connect your Terraform projects with other parts of your infrastructure, or with other Terraform projects. To learn more, follow our in-depth tutorial, 
+[Output Data from Terraform.](https://learn.hashicorp.com/tutorials/terraform/outputs?in=terraform/configuration-language)
 
 ---
 
