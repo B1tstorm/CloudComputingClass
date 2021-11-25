@@ -127,6 +127,6 @@ resource "aws_security_group" "alb-sg" {
   }
 
   tags = {
-    Name = "tf-allow_web"
+    Name = "tf-allow_web_alb"
   }
 }
