@@ -65,7 +65,7 @@ resource "aws_security_group" "app-sg" {
   }
 
   tags = {
-    Name = "tf-allow_ssh"
+    Name = "tf-allow_web_and_ssh"
   }
 }
 
@@ -127,6 +127,6 @@ resource "aws_security_group" "alb-sg" {
   }
 
   tags = {
-    Name = "tf-allow_web_alb"
+    Name = "tf-allow_web"
   }
 }
