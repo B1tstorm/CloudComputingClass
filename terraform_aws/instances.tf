@@ -1,6 +1,8 @@
 # NIC -> For subnet
 resource "aws_network_interface" "tf_bastion_instance" {
   subnet_id   = module.vpc.public_subnets[0]
+  # alternativ statt über module.vpc.pub..., über die outputs.tf die id's erhalten
+  # subnet_id = public_subnets[0]
   private_ips = ["192.168.0.10"]
 
   tags = {
@@ -27,6 +29,9 @@ resource "aws_instance" "tf_bastion_instance" {
     network_interface_id = aws_network_interface.tf_bastion_instance.id
     device_index         = 0
   }
+
+  # vpc_security_group_ids - (Optional, VPC only) A list of security group IDs to associate with.
+  #vpc_security_group_ids = 
 
   tags = {
     Name = "tf_bastion_instance"

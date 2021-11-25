@@ -1,6 +1,8 @@
 # Terraform guide
 
-> [Get started tut - aws](https://learn.hashicorp.com/collections/terraform/aws-get-started)
+> [Get started tut - aws](https://learn.hashicorp.com/collections/terraform/aws-get-started)    
+
+> [Terraform AWS Registry](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
 ---
 
 Initialize the directory
