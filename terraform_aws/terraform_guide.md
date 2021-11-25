@@ -1,5 +1,8 @@
 # Terraform guide
 
+- [Get started tut - aws](https://learn.hashicorp.com/collections/terraform/aws-get-started)
+---
+
 Initialize the directory
 ```terraform
 terraform init
@@ -37,3 +40,12 @@ terraform output
 - Initialize: Installiere nptwendige TF Provider
 - Plan: Überprüfe die änderungen die TF macht
 - Apply: Führe die geplanten änderungen duch
+
+---
+
+## Blöcke in .tf Datei
+Es gibt:
+- [resource](https://www.terraform.io/docs/language/resources/index.html)n, dies erlaubt z.B. eine EC2 Instanz zu starten oder ein subnetz zu konfigurieren 
+- [module](https://www.terraform.io/docs/language/modules/index.html), eine sammlung oder anleitung von ressourcen. Vereinfacht mehrere schritte zu automatisieren
+- input [variable](https://www.terraform.io/docs/language/values/index.html)n sind Variablen die in einer externen Datei liegen und auf welche zugegriffen werden kann um den Code nicht anzufassen. Wie eine config.
+- [outputs](https://www.terraform.io/docs/language/values/index.html) values, ausgabe von zur laufzeit gesetzten daten. Z.B.: ID's oder IP's. Kann auch genutzt werden zum teilen der generierten Daten zwischen den ressourcen und modulen.
