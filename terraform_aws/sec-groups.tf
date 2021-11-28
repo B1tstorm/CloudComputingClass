@@ -98,10 +98,21 @@ resource "aws_security_group" "data-sg" {
 }
 
 # ------- Rules ----------
-resource "aws_security_group_rule" "data-sg-rule" {
+resource "aws_security_group_rule" "data_sg_rule_sql" {
   type      = "ingress"
   from_port = 3306
   to_port   = 3306
+  protocol  = "tcp"
+  # Wird an die data-sg angebunden
+  security_group_id = aws_security_group.data-sg.id
+  # Alle mit dieser Securitygroup dürfen von Instanzen mit der Security Group APP kommunizieren
+  source_security_group_id = aws_security_group.app-sg.id
+}
+
+resource "aws_security_group_rule" "data_sg_rule_ssh" {
+  type      = "ingress"
+  from_port = 22
+  to_port   = 22
   protocol  = "tcp"
   # Wird an die data-sg angebunden
   security_group_id = aws_security_group.data-sg.id
