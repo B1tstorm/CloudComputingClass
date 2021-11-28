@@ -23,7 +23,7 @@ resource "aws_lb_target_group" "tf_app_tg" {
 resource "aws_lb_target_group_attachment" "tf_app_attachment_https" {
   target_group_arn = aws_lb_target_group.tf_app_tg.arn
   target_id        = aws_instance.tf_app_instance.id
-  port = 443
+  port             = 443
 }
 
 # Listener - Zertifikat kann nicht angelegt werden mit TLS

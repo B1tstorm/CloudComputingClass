@@ -4,7 +4,7 @@ module "vpc" {
   name = "tf-vpc"
   cidr = "192.168.0.0/24"
 
-  azs             = ["eu-central-1a"]
+  azs             = ["eu-central-1a", "eu-central-1b"]
   private_subnets = ["192.168.0.64/26", "192.168.0.128/26"]
   public_subnets  = ["192.168.0.0/26"]
 
