@@ -108,8 +108,4 @@ resource "aws_security_group_rule" "data-sg-rule" {
   security_group_id = aws_security_group.data-sg.id
   # Alle mit dieser Securitygroup dürfen von Instanzen mit der Security Group APP kommunizieren
   source_security_group_id = aws_security_group.app-sg.id
-
-  tags = {
-    Name = "tf-allow_sql"
-  }
 }

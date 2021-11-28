@@ -26,7 +26,7 @@ resource "aws_instance" "tf_bastion_instance" {
   instance_type = "t2.micro"
 
   network_interface {
-    network_interface_id = aws_network_interface.tf_bastion_instance.id
+    network_interface_id = aws_network_interface.tf_bastion_network_interface.id
     device_index         = 0
   }
 
