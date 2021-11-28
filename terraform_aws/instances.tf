@@ -1,5 +1,5 @@
 # NIC -> For subnet
-resource "aws_network_interface" "tf_bastion_instance" {
+resource "aws_network_interface" "tf_bastion_network_interface" {
   subnet_id = module.vpc.public_subnets[0]
   # alternativ statt über module.vpc.pub..., über die outputs.tf die id's erhalten
   # subnet_id = public_subnets[0]
@@ -11,7 +11,7 @@ resource "aws_network_interface" "tf_bastion_instance" {
 }
 
 # NIC -> For subnet
-resource "aws_network_interface" "tf_app_instance" {
+resource "aws_network_interface" "tf_app_network_interface" {
   subnet_id   = module.vpc.private_subnets[0]
   private_ips = ["192.168.0.100"]
 
@@ -44,7 +44,7 @@ resource "aws_instance" "tf_app_instance" {
   instance_type = "t2.micro"
 
   network_interface {
-    network_interface_id = aws_network_interface.tf_app_instance.id
+    network_interface_id = aws_network_interface.tf_app_network_interface.id
     device_index         = 0
   }
 
