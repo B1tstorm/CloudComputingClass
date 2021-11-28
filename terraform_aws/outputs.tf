@@ -49,7 +49,7 @@ output "instance_app_ip" {
 }
 
 # Loadbalancer
-output "loadbalancer_public_ips" {
-  description = "List of IPs the Loadbalancer is attached to ?"
-  value       = aws_lb.tf-network-lb.subnets
+output "loadbalancer_public_subnets" {
+  description = "List of Isubnets the Loadbalancer is attached to ?"
+  value       = aws_lb.tf_network_lb.subnets
 }

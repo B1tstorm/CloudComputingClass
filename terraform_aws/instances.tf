@@ -1,7 +1,7 @@
 # NIC -> For subnet
 resource "aws_network_interface" "tf_bastion_network_interface" {
-  subnet_id = module.vpc.public_subnets[0]
-  private_ips = ["192.168.0.10"]
+  subnet_id       = module.vpc.public_subnets[0]
+  private_ips     = ["192.168.0.10"]
   security_groups = [aws_security_group.dmz-sg.id]
 
   tags = {
@@ -11,8 +11,8 @@ resource "aws_network_interface" "tf_bastion_network_interface" {
 
 # NIC -> For subnet
 resource "aws_network_interface" "tf_app_network_interface" {
-  subnet_id   = module.vpc.private_subnets[0]
-  private_ips = ["192.168.0.100"]
+  subnet_id       = module.vpc.private_subnets[0]
+  private_ips     = ["192.168.0.100"]
   security_groups = [aws_security_group.app-sg.id]
 
   tags = {
