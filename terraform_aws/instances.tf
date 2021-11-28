@@ -1,6 +1,6 @@
 # NIC -> For subnet
 resource "aws_network_interface" "tf_bastion_instance" {
-  subnet_id   = module.vpc.public_subnets[0]
+  subnet_id = module.vpc.public_subnets[0]
   # alternativ statt über module.vpc.pub..., über die outputs.tf die id's erhalten
   # subnet_id = public_subnets[0]
   private_ips = ["192.168.0.10"]
