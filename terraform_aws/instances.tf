@@ -31,7 +31,7 @@ resource "aws_instance" "tf_bastion_instance" {
   }
 
   # vpc_security_group_ids - (Optional, VPC only) A list of security group IDs to associate with.
-  #vpc_security_group_ids = 
+  vpc_security_group_ids = [aws_security_group.dmz-sg.id]
 
   tags = {
     Name = "tf_bastion_instance"
@@ -47,6 +47,8 @@ resource "aws_instance" "tf_app_instance" {
     network_interface_id = aws_network_interface.tf_app_network_interface.id
     device_index         = 0
   }
+
+  vpc_security_group_ids = [aws_security_group.app-sg.id]
 
   tags = {
     Name = "tf_app_instance"

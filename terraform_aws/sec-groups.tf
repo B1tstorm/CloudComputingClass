@@ -98,7 +98,6 @@ resource "aws_security_group" "data-sg" {
 }
 
 # ------- Rules ----------
-
 resource "aws_security_group_rule" "data-sg-rule" {
   type      = "ingress"
   from_port = 3306

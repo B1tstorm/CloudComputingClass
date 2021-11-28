@@ -26,3 +26,24 @@ output "nat_public_ips" {
   description = "List of public Elastic IPs created for AWS NAT Gateway"
   value       = module.vpc.nat_public_ips
 }
+
+# EC2
+output "instance_bastion_id" {
+  description = "ID of the bastion instance"
+  value = aws_instance.tf_bastion_instance.id
+}
+
+output "instance_bastion_ip" {
+    description = "Elastic IP of the bastion instance"
+  value = aws_instance.tf_bastion_instance.public_ip
+}
+
+output "instance_app_id" {
+  description = "ID of the app instance"
+  value = aws_instance.tf_app_instance.id
+}
+
+output "instance_app_ip" {
+      description = "Elastic IP of the app instance"
+  value = aws_instance.tf_app_instance.public_ip
+}
