@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "target-s3" {
-  bucket = "lab6-project-s3-target"
+  bucket = "lab6-project-s3-target-oli"
   acl    = "private"
   tags = {
     Name        = "target-s3"
@@ -13,7 +13,7 @@ resource "aws_s3_bucket" "target-s3" {
 
 
 resource "aws_s3_bucket" "source-s3" {
-  bucket = "lab6-project-s3-source"
+  bucket = "lab6-project-s3-source-oli"
   acl    = "private"
   tags = {
     Name        = "source-s3"
