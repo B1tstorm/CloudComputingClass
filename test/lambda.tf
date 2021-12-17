@@ -44,14 +44,14 @@ resource "aws_iam_policy" "policy" {
               "Action": [
                   "s3:GetObject"
               ],
-              "Resource": "arn:aws:s3:::${aws_s3_bucket.source-s3}/*"
+              "Resource": "arn:aws:s3:::${aws_s3_bucket.source-s3.bucket}/*"
           },
           {
               "Effect": "Allow",
               "Action": [
                   "s3:PutObject"
               ],
-              "Resource": "arn:aws:s3:::${aws_s3_bucket.target-s3.bucket}/*"
+              "Resource": "${aws_s3_bucket.target-s3.arn}/*"
           }
       ]
  })
@@ -65,13 +65,33 @@ resource "aws_iam_role_policy_attachment" "test-attach" {
 
 
 
+resource "aws_lambda_permission" "allow_bucket" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.parser-lambda.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.source-s3.arn
+}
+
+
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.source-s3.id
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.parser-lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+  }
+
+  depends_on = [aws_lambda_permission.allow_bucket]
+}
+
+
 resource "aws_lambda_function" "parser-lambda" {
   filename      = "parser.py.zip"
   function_name = "parser-lambda"
   role    = aws_iam_role.role.arn
   handler = "parser.lambda_handler"
-  source_code_hash = "${base64sha256("parse.py.zip")}"
-  runtime     = "python3.9"
+  runtime     = "python3.8"
   environment {
     variables = {
       foo = "bar"
