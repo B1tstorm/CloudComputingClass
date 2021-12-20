@@ -87,11 +87,11 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 
 
 resource "aws_lambda_function" "parser-lambda" {
-  filename      = "parser.py.zip"
+  filename      = "parser.zip"
   function_name = "parser-lambda"
   role    = aws_iam_role.role.arn
   handler = "parser.lambda_handler"
-  runtime     = "python3.8"
+  runtime     = "python3.9"
   environment {
     variables = {
       foo = "bar"
