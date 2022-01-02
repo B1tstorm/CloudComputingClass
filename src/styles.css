@@ -1,1 +1,46 @@
-/* You can add global styles to this file, and also import other style files */
+/* Adobe Fonts */
+@import url("https://use.typekit.net/lgv1kcl.css");
+
+/* Application-wide Styles */
+h1 {
+  color: #000000;
+  font-family: freight-text-pro, Georgia, serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+h2, h3 {
+  color: #444;
+  font-family: Georiga, "Times New Roman", Serif;
+  font-weight: lighter;
+}
+
+a {
+  font-family: freight-text-pro, serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+  font-style: normal;
+}
+
+a.link-active {
+  font-style: italic;
+  letter-spacing: 0.04rem;
+  color: rgba(0,0,0,0.5);
+}
+
+a.link-passive {
+  font-style: normal;
+  color: rgba(0,0,0,1);
+}
+
+body {
+  margin: 2em;
+}
+body, input[type="text"], button {
+  color: #333;
+  font-family: Georiga, "Times New Roman", Serif;
+}
+/* everywhere else */
+* {
+  font-family: Georiga, "Times New Roman", Serif;
+}
