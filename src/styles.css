@@ -22,6 +22,22 @@ a {
   font-style: normal;
 }
 
+a:after {
+  display: block;
+  margin-top: 0.6rem;
+  content:'';
+  border-bottom: 1px solid rgba(0,0,0,1);
+  transform: scaleX(0);
+  transition: transform 200ms ease-in;
+  transform-origin:left center;
+}
+
+a:hover:after {
+  transform: scaleX(1);
+}
+
+
+
 a.link-active {
   font-style: italic;
   letter-spacing: 0.04rem;
