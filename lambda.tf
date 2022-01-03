@@ -44,14 +44,14 @@ resource "aws_iam_policy" "policy" {
               "Action": [
                   "s3:GetObject"
               ],
-              "Resource": "arn:aws:s3:::${aws_s3_bucket.source-s3.bucket}/*"
+              "Resource": "${aws_s3_bucket.lab6-s3.arn}/*"
           },
           {
               "Effect": "Allow",
               "Action": [
                   "s3:PutObject"
               ],
-              "Resource": "${aws_s3_bucket.target-s3.arn}/*"
+              "Resource": "${aws_s3_bucket.lab6-s3.arn}/*"
           }
       ]
  })
@@ -70,19 +70,30 @@ resource "aws_lambda_permission" "allow_bucket" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.parser-lambda.arn
   principal     = "s3.amazonaws.com"
-  source_arn    = aws_s3_bucket.source-s3.arn
+  source_arn    = aws_s3_bucket.lab6-s3.arn
 }
 
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_bucket.source-s3.id
+  bucket = aws_s3_bucket.lab6-s3.id
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.parser-lambda.arn
     events              = ["s3:ObjectCreated:*"]
+    # filter_prefix       = ""
+    filter_suffix       = ".json"
   }
 
-  depends_on = [aws_lambda_permission.allow_bucket]
+  # lambda_function {
+  #   lambda_function_arn = aws_lambda_function.db-writer-lambda.arn
+  #   events              = ["s3:ObjectCreated:*"]
+  #   filter_prefix       = ""
+  #   filter_suffix       = ""
+  # }
+
+  depends_on = [
+    aws_lambda_permission.allow_bucket
+  ]
 }
 
 
@@ -98,3 +109,16 @@ resource "aws_lambda_function" "parser-lambda" {
     }
   }
 }
+
+# resource "aws_lambda_function" "db-writer-lambda" {
+#   filename      = "db-writer.zip"
+#   function_name = "db-writer-lambda"
+#   role    = aws_iam_role.role.arn
+#   handler = "dbwriter.lambda_handler"
+#   runtime     = "python3.9"
+#   environment {
+#     variables = {
+#       foo = "bar"
+#     }
+#   }
+# }
