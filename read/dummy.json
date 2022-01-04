@@ -1,0 +1,14 @@
+{
+    "firstname" : "Peter",
+    "secondname" : "Petersen",
+    "age" : 30,
+    "hobbies" : [
+        "family",
+        "friends"
+    ],
+    "skills" : {
+        "first" : "eating",
+        "second" : "sleeping",
+        "third" : "repeating"
+    }
+}
