@@ -4,30 +4,26 @@
          accept=".json"
          (change)="onFileInput(fileInput.files)"
          #fileInput
-         hidden
-  >
+         hidden>
 
-
-  <button class="file-upload"
-          (click)="fileInput.click()">
+  <button
+    class="file-upload"
+    (click)="fileInput.click()">
     Select File
   </button>
 
   <button
     type="submit"
     class="file-upload"
-    (click)="onSubmit()"
-  >
+    (click)="onSubmit()">
     Submit
   </button>
 
   <button
     type="submit"
     class="file-upload"
-    (click)="onReset()"
-  >
+    (click)="onReset()">
     Reset
   </button>
-
 
 </div>
