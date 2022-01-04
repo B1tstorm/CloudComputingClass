@@ -1,1 +1,23 @@
-<p>upload-form works!</p>
+<div class="form">
+  <input type="file"
+         class="file-input"
+         accept=".json"
+         (change)="onFileInput(fileInput.files)"
+         #fileInput
+         hidden
+  >
+
+  <button class="file-upload" (click)="fileInput.click()">
+    {{ file ? file.name : 'Select File' }}
+  </button>
+
+  <button
+          type="submit"
+          class="file-upload"
+          (click)="onAsk()"
+  >
+    Submit
+  </button>
+
+  <p>{{answer? this.answer : 'Hello'}}</p>
+</div>
