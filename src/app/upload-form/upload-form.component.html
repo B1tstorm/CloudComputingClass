@@ -7,17 +7,27 @@
          hidden
   >
 
-  <button class="file-upload" (click)="fileInput.click()">
-    {{ file ? file.name : 'Select File' }}
+
+  <button class="file-upload"
+          (click)="fileInput.click()">
+    Select File
   </button>
 
   <button
-          type="submit"
-          class="file-upload"
-          (click)="onAsk()"
+    type="submit"
+    class="file-upload"
+    (click)="onSubmit()"
   >
     Submit
   </button>
 
-  <p>{{answer? this.answer : 'Hello'}}</p>
+  <button
+    type="submit"
+    class="file-upload"
+    (click)="onReset()"
+  >
+    Reset
+  </button>
+
+
 </div>
