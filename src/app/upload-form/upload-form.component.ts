@@ -1,13 +1,16 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Subscription} from "rxjs";
 import {UploadService} from "../upload.service";
+import {MessageService} from "../message.service";
 
 @Component({
   selector: 'app-upload-form',
   templateUrl: './upload-form.component.html',
   styleUrls: ['./upload-form.component.css']
 })
-export class UploadFormComponent implements OnInit, OnDestroy {
+export class UploadFormComponent implements OnInit {
+
+  message = '';
 
   file: File | null = null;
 
@@ -16,9 +19,10 @@ export class UploadFormComponent implements OnInit, OnDestroy {
   // otherwise it would not be triggered since there is not "change"
   @ViewChild('fileInput') fileInputElement!: ElementRef;
 
-  private subscription: Subscription | undefined;
-
-  constructor( private uploads: UploadService) { }
+  constructor(
+    private uploadService: UploadService,
+    public messageService: MessageService
+  ) { }
 
   onFileInput(files: FileList | null): void {
     if(files) {
@@ -28,7 +32,12 @@ export class UploadFormComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     if(this.file) {
-      this.subscription = this.uploads.upload(this.file).subscribe();
+      this.uploadService.upload(this.file).subscribe(
+        msg => {
+          this.fileInputElement.nativeElement.value = '';
+          this.message = msg;
+        }
+      )
     }
   }
 
@@ -37,16 +46,6 @@ export class UploadFormComponent implements OnInit, OnDestroy {
     this.file = null;
   }
 
-  answer: string | null = null;
-
-  onAsk() {
-    this.uploads.getAnswer().subscribe(answer => (this.answer = answer));
-  }
-
   ngOnInit(): void {
-  }
-
-  ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
   }
 }
