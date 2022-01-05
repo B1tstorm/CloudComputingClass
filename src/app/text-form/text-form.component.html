@@ -10,7 +10,7 @@
         <label for="key">key</label>
         <input id="key" type="text" formControlName="key" placeholder="key">
         <label for="value">value</label>
-        <input id="value" type="text" formControlName="value" placeholder="value">
+        <input id="value" type="text" formControlName="value" placeholder="value" (keyup.enter)="addKeyValuePair()">
       </div>
     </div>
   </div>
