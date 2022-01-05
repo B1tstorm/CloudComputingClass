@@ -10,8 +10,16 @@ const readDirectory = "./read/";
 const encoding = "utf8"
 
 app.use(fileUpload());
+app.use(express.json())
 
-app.post('/api', (req, res) => {
+let generateRandomFileName = () => {
+    const fileNumber = crypto.randomUUID().slice(0, 6);
+    const sessionNumber = crypto.randomUUID().slice(0, 6)
+    const fileType = ".json"
+    return `file-${fileNumber}-session-${sessionNumber}${fileType}`;
+}
+
+app.post('/api/file', (req, res) => {
     console.log(`File successfully uploaded: ${req.files.file.name}`)
     const bufferedFile = req.files.file.data;
     try {
@@ -22,12 +30,9 @@ app.post('/api', (req, res) => {
         return;
     }
 
-    const fileNumber = crypto.randomUUID().slice(0, 6);
-    const sessionNumber = crypto.randomUUID().slice(0, 6)
-    const fileType = ".json"
-    let randomFileName = `file-${fileNumber}-session-${sessionNumber}${fileType}`;
 
-    const filePath = writeDirectory + randomFileName;
+
+    const filePath = writeDirectory + generateRandomFileName();
 
     fs.writeFile(filePath, bufferedFile, encoding, (error) => {
         if (error) return console.log(error);
@@ -35,27 +40,34 @@ app.post('/api', (req, res) => {
     })
 
     let jsonResponse = {
-        "name" : req.files.file.name,
-        "mime" : req.files.file.mimetype,
-        "size" : req.files.file.size,
-        "status" : "OK"
+        "status": "OK",
+        "message": "File successfully uploaded",
+        "data": {
+            "name": req.files.file.name,
+            "mime": req.files.file.mimetype,
+            "size": req.files.file.size
+        }
     }
     res.status(200);
     res.send(jsonResponse);
 });
 
+app.post('/api/json', (req, res) => {
+    console.log(req.body);
+
+    const filePath = writeDirectory + generateRandomFileName()
+    const jsonString = JSON.stringify(req.body);
+
+    fs.writeFile(filePath,jsonString, encoding, (error) => {
+        if (error) return console.log(error);
+        console.log(`The JSON has been saved as file to ${filePath}`);
+    })
+
+    res.sendStatus(200)
+})
+
 app.get('/', (req, res) => {
     res.send('Server is listening at port ' + port);
-});
-
-app.get('/api', (req, res) => {
-    fs.readFile("./read/dummy.json", "utf8", (error, jsonString) => {
-        if (error) {
-            console.log("Failed to read File", error);
-            return;
-        }
-        res.send(jsonString)
-    })
 });
 
 const server = app.listen(port, () => {
