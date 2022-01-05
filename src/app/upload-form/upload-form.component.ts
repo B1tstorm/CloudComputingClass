@@ -32,7 +32,7 @@ export class UploadFormComponent implements OnInit {
 
   onSubmit() {
     if(this.file) {
-      this.uploadService.upload(this.file).subscribe(
+      this.uploadService.uploadFile(this.file).subscribe(
         msg => {
           this.fileInputElement.nativeElement.value = '';
           this.message = msg;

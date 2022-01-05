@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpEvent, HttpEventType} from "@angular/common/http";
+import {HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders} from "@angular/common/http";
 import {catchError, last, map, of, tap} from "rxjs";
 
 import {MessageService} from "./message.service";
@@ -12,25 +12,43 @@ export class UploadService {
   constructor(
     private http: HttpClient,
     private messenger: MessageService
-  ) { }
+  ) {
+  }
 
-  upload(file: File) {
-    if(!file) {
+  uploadFile(file: File) {
+    if (!file) {
       return of("No file was provided.")
     }
 
     const data = new FormData();
     data.append('file', file)
 
-    return this.http.post('/api', data, {
+    return this.http.post('/api/file', data, {
       reportProgress: true,
       observe: "events"
     }).pipe(
       map(event => this.getEventMessage(event, file)),
       tap(message => this.showProgress(message)),
       last(),
-      catchError(this.handleError(file))
+      catchError(this.handleFileError(file))
     );
+  }
+
+  sendJson(jsonString: String) {
+    if (!jsonString) {
+      return of("No jsonString provided")
+    }
+
+    const httpHeaders = new HttpHeaders()
+      .set('content-type', 'application/json');
+
+    return this.http.post('/api/json', jsonString, {
+      headers: httpHeaders,
+      observe: "body",
+      responseType: "json"
+    }).pipe(
+      catchError(this.handleJsonError(jsonString))
+    )
   }
 
 
@@ -38,21 +56,27 @@ export class UploadService {
     switch (event.type) {
       case HttpEventType.Sent:
         return `Uploading file ${file.name} of size ${file.size}.`;
-        break
+
       case HttpEventType.UploadProgress:
         const percentDone = Math.round(100 * event.loaded / (event.total ?? 0));
         return `File ${file.name} is ${percentDone}% uploaded...`
-        break
+
       case HttpEventType.Response:
         return `File ${file.name} was completely uploaded.`
-        break
-      default:
-        return `File ${file.name} invoked unexpected event: ${event.type}.`
+
+      case HttpEventType.ResponseHeader:
+        return `Response Header ${event.type}.`
+
+      case HttpEventType.User:
+        return `User ${event.type}.`
+
+      case HttpEventType.DownloadProgress:
+        return `Download Progress ${event.type}.`
     }
   }
 
 
-  private handleError(file: File) {
+  private handleFileError(file: File) {
     const userMessage = `${file.name} upload failed`;
 
     return (error: HttpErrorResponse) => {
@@ -67,6 +91,12 @@ export class UploadService {
       // Let app keep running but indicate failure.
       return of(userMessage);
     };
+  }
+
+  private handleJsonError(string: String) {
+    return (error: HttpErrorResponse) => {
+      return of("Error handling the POST request")
+    }
   }
 
   private showProgress(message: string) {

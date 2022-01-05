@@ -1,1 +1,19 @@
-<p>text-form works!</p>
+<form [formGroup]="keyValueForm">
+  <div formArrayName="keyValuePairs">
+    <h2>Key Value Pairs</h2>
+    <button type="button" (click)="addKeyValuePair()">Add another Pair</button>
+    <button type="button" (click)="onSubmit()">Submit</button>
+    <button type="button" (click)="onReset()">Reset</button>
+
+    <div *ngFor="let keyValuePair of keyValuePairs.controls; let i=index">
+      <div [formGroupName]="i">
+        <label for="key">key</label>
+        <input id="key" type="text" formControlName="key" placeholder="key">
+        <label for="value">value</label>
+        <input id="value" type="text" formControlName="value" placeholder="value">
+      </div>
+    </div>
+  </div>
+</form>
+
+
