@@ -114,7 +114,7 @@ resource "aws_lambda_function" "parser-lambda" {
 #   filename      = "db-writer.zip"
 #   function_name = "db-writer-lambda"
 #   role    = aws_iam_role.role.arn
-#   handler = "dbwriter.lambda_handler"
+#   handler = "dynamodb.lambda_handler"
 #   runtime     = "python3.9"
 #   environment {
 #     variables = {
