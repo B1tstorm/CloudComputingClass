@@ -15,9 +15,8 @@ def lambda_handler(event, context):
       tempFileName = fileName.replace('/', '')
       #ein unique dateiname wird erstellt in dem ordener temp (in der lambda)
       file_local_path = '/tmp/{}{}'.format(uuid.uuid4(), tempFileName)
+      upload_path = 'jsons/'
       upload_file_name = '{}{}'.format(uuid.uuid4(), tempFileName)
       s3_client.download_file(bucket, fileName, file_local_path)
-      s3_client.upload_file(file_local_path,"lab6-project-s3-target", upload_file_name)
-       
       
-      
+      s3_client.upload_file(file_local_path,"lab6-project-s3", upload_path + upload_file_name)
