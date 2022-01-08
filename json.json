@@ -1,1 +1,13 @@
-{"id" : "12334"}
+{
+    "id" : "123134",
+    "name" : "Anas",
+    "alter" : "25",
+    "adresse" : "Kiel",
+    "haarfarbe" : "schwarz",
+    "Gehirn" : "false",
+    "job" : "Dolmetscher",
+    "haut" : "weiß",
+    "geboren" : "Damaskus",
+    "studium" : "INI",
+    "hobby" : "lernen:)"
+}
