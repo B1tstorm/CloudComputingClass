@@ -52,6 +52,13 @@ resource "aws_iam_policy" "policy" {
                   "s3:PutObject"
               ],
               "Resource": "${aws_s3_bucket.lab6-s3.arn}/*"
+          },
+          {
+              "Effect": "Allow",
+              "Action": [
+                  "dynamodb:*"
+              ],
+              "Resource": "arn:aws:dynamodb:eu-central-1:439517200646:table/*"
           }
       ]
  })
@@ -65,13 +72,23 @@ resource "aws_iam_role_policy_attachment" "test-attach" {
 
 
 
-resource "aws_lambda_permission" "allow_bucket" {
+resource "aws_lambda_permission" "allow_bucket_parser" {
   statement_id  = "AllowExecutionFromS3Bucket"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.parser-lambda.arn
   principal     = "s3.amazonaws.com"
   source_arn    = aws_s3_bucket.lab6-s3.arn
 }
+
+resource "aws_lambda_permission" "allow_bucket_writer" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.db-writer-lambda.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.lab6-s3.arn
+}
+
+
 
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
@@ -81,24 +98,25 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     lambda_function_arn = aws_lambda_function.parser-lambda.arn
     events              = ["s3:ObjectCreated:*"]
     filter_prefix       = "input/"
+    filter_suffix       = ".csv"
+  }
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.db-writer-lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "input/"
     filter_suffix       = ".json"
   }
 
-  # lambda_function {
-  #   lambda_function_arn = aws_lambda_function.db-writer-lambda.arn
-  #   events              = ["s3:ObjectCreated:*"]
-  #   filter_prefix       = ""
-  #   filter_suffix       = ""
-  # }
-
   depends_on = [
-    aws_lambda_permission.allow_bucket
+    aws_lambda_permission.allow_bucket_writer,
+    aws_lambda_permission.allow_bucket_parser
   ]
 }
 
 
 resource "aws_lambda_function" "parser-lambda" {
-  filename      = "parser.zip"
+  filename      = "parser.py.zip"
   function_name = "parser-lambda"
   role    = aws_iam_role.role.arn
   handler = "parser.lambda_handler"
@@ -110,15 +128,15 @@ resource "aws_lambda_function" "parser-lambda" {
   }
 }
 
-# resource "aws_lambda_function" "db-writer-lambda" {
-#   filename      = "db-writer.zip"
-#   function_name = "db-writer-lambda"
-#   role    = aws_iam_role.role.arn
-#   handler = "dynamodb.lambda_handler"
-#   runtime     = "python3.9"
-#   environment {
-#     variables = {
-#       foo = "bar"
-#     }
-#   }
-# }
+resource "aws_lambda_function" "db-writer-lambda" {
+  filename      = "db-writer.zip"
+  function_name = "db-writer-lambda"
+  role    = aws_iam_role.role.arn
+  handler = "dynamodb.lambda_handler"
+  runtime     = "python3.9"
+  environment {
+    variables = {
+      foo = "bar"
+    }
+  }
+}

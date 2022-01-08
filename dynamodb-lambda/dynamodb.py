@@ -19,13 +19,14 @@ def lambda_handler(event, context):
         #file_local_path = '/tmp/{}{}'.format(uuid.uuid4(), tempFileName)
         #s3_client.download_file(bucket, fileName, file_local_path)    
         result = s3_client.get_object(Bucket=bucket, Key=fileName) 
-        text = result["Body"].read().decode()
+        text = result["Body"].read()
+        jsonDict = json.loads(text)
         print(text) # Use your desired JSON Key for your value 
       
     # In DynamoDB Tabelle schreiben  
     db = DynamoDbClass('users')
     db.create_table() # prüft selbst ob existiert
-    db.create_item()
+    db.create_item(jsonDict)
     #db.get_item()
     #db.get_tables()
 

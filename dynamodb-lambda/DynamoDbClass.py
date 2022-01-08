@@ -6,9 +6,9 @@ class DynamoDbClass:
     def __init__(self, table_name):
         self.table_name = table_name
         # Client to act like cli or console (list tables etc.) https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#client
-        self.client = boto3.client('dynamodb', endpoint_url='http://localhost:8000')
+        self.client = boto3.client('dynamodb')#, endpoint_url='http://localhost:8000')
         # Get the service resource to get functionalities like create_table() https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#service-resource
-        self.dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
+        self.dynamodb = boto3.resource('dynamodb')#, endpoint_url='http://localhost:8000')
         # Funcionalities like CRUD https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#table
         self.table = self.dynamodb.Table(self.table_name)
     
@@ -29,7 +29,7 @@ class DynamoDbClass:
             KeySchema=[
                 {
                     'AttributeName': 'id',
-                    'KeyType': 'S'
+                    'KeyType': 'HASH'
                 }
             ],
             AttributeDefinitions=[
@@ -39,8 +39,8 @@ class DynamoDbClass:
                 },
             ],
             ProvisionedThroughput={
-                'ReadCapacityUnits': 5,
-                'WriteCapacityUnits': 5
+            'ReadCapacityUnits': 5,
+            'WriteCapacityUnits': 5
             }
         )
         # Wait until the table exists.
@@ -55,17 +55,9 @@ class DynamoDbClass:
         print(response['TableNames'])
         
         
-    def create_item(self):
+    def create_item(self, jsonFile):
         print(self.table.creation_date_time)
-        self.table.put_item(
-        Item={
-                'username': 'janedoe',
-                'first_name': 'Jane',
-                'last_name': 'Doe',
-                'age': 25,
-                'account_type': 'standard_user',
-            }
-        )
+        self.table.put_item(Item= jsonFile)
         
         
     def get_item(self):

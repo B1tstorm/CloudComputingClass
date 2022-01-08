@@ -10,7 +10,7 @@ module "db" {
   instance_class    = "db.t2.micro"
   allocated_storage = 20
 
-  name     = "demodb_rds"
+  name     = "demodb_rdsss"
   username = "root"
   password = "mypw!asdasfdasdjalksndasnh"
   port     = "3306"
