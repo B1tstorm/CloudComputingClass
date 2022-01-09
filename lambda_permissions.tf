@@ -163,20 +163,6 @@ resource "aws_lambda_permission" "allow_bucket_writer" {
   source_arn    = aws_s3_bucket.lab6-s3.arn
 }
 
-##nicht sicher ob das wichtig ist?? oder die arns getausct werden sollen
-resource "aws_lambda_permission" "allow_parser_to_invoke_writer" {
-  statement_id  = "AllowExecutionFromParser"
-  action        = "lambda:InvokeFunction"
-  source_arn  = aws_lambda_function.db-writer-lambda.arn
-  principal     = "lambda.amazonaws.com"
-  function_name   = aws_lambda_function.parser-lambda.arn
-}
-
-
-
-
-
-#ist nur für eine lambda möglich. //todo
 resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = aws_s3_bucket.lab6-s3.id
 
@@ -187,12 +173,13 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     filter_suffix       = ".json"
   }
 
-  lambda_function {
-    lambda_function_arn = aws_lambda_function.db-writer-lambda.arn
-    events              = ["s3:ObjectCreated:*"]
-    filter_prefix       = "input/"
-    filter_suffix       = ".png"
-  }
+#funktion muss micht getriggert werden. Sie wird von der anderen Funkltion aufgerufen
+#   lambda_function {
+#     lambda_function_arn = aws_lambda_function.db-writer-lambda.arn
+#     events              = ["s3:ObjectCreated:*"]
+#     filter_prefix       = "input/"
+#     filter_suffix       = ".png"
+#   }
 
   depends_on = [
     aws_lambda_permission.allow_bucket_writer,

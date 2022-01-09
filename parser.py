@@ -23,4 +23,4 @@ def lambda_handler(event, context):
 
       #call the db-writer-lambda
       boto3.client('lambda').invoke(FunctionName="db-writer-lambda",InvocationType='Event',Payload=json.dumps(event))
-      print("the other lambda hase been invoked :) ")
+      
