@@ -20,3 +20,7 @@ def lambda_handler(event, context):
       s3_client.download_file(bucket, fileName, file_local_path)
       
       s3_client.upload_file(file_local_path,"lab6-project-s3", upload_path + upload_file_name)
+
+      #call the db-writer-lambda
+      boto3.client('lambda').invoke(FunctionName="db-writer-lambda",InvocationType='Event',Payload=json.dumps(event))
+      print("the other lambda hase been invoked :) ")
