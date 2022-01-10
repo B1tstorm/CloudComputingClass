@@ -3,7 +3,7 @@ resource "aws_lambda_function" "parser-lambda" {
   function_name = "parser-lambda"
   role          = aws_iam_role.parser_role.arn
   handler       = "parser.lambda_handler"
-  runtime       = "python3.9"
+  runtime       = "python3.8"
   environment {
     variables = {
       foo = "bar"
