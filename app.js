@@ -3,16 +3,21 @@ import fileUpload from 'express-fileupload'
 import fs from 'fs'
 import crypto from 'crypto'
 import cors from 'cors'
+import WebSocket, {WebSocketServer} from 'ws';
 
 const app = express();
 const port = 3333;
 const writeDirectory = "./write/";
 const readDirectory = "./read/";
 const encoding = "utf8"
+const websocketServer = WebSocket.Server({port: 7071});
+
+const clients = new Map();
 
 app.use(fileUpload());
 app.use(express.json())
 app.use(cors());
+
 
 let generateRandomFileName = () => {
     const fileNumber = crypto.randomUUID().slice(0, 6);
@@ -21,9 +26,21 @@ let generateRandomFileName = () => {
     return `file-${fileNumber}-session-${sessionNumber}${fileType}`;
 }
 
+websocketServer.on('connection', (websocketClient) => {
+    const clientId = crypto.randomUUID().slice(0,8);
+    clients.set(clientId, websocketClient);
+    websocketClient.send('{"Status":"Connected"}');
+
+    websocketClient.on('message', (message) => {
+        message.
+    })
+
+
+})
+
 app.post('/api/file', (req, res) => {
     console.log(`File successfully uploaded: ${req.files.file.name}`)
-    const bufferedFile = req.files.file.data;
+    const bufferedFile = req.files.file.data;gt
     try {
         JSON.parse(bufferedFile.toString(encoding))
     } catch (error) {
