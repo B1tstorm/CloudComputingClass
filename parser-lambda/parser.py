@@ -22,7 +22,7 @@ def lambda_handler(event, context):
       s3_client.download_file(bucket, fileName, file_local_path)
       convert_to_flat_csv(file_local_path)
       
-      s3_client.upload_file("/tmp/test.csv", "lab6-project-s3", "test.csv")
+      s3_client.upload_file("/tmp/test.csv", "lab6-project-s3", "{}.csv".format(uuid.uuid4()))
       #s3_client.upload_file(file_local_path,"lab6-project-s3", upload_path + upload_file_name)
 
       #call the db-writer-lambda
