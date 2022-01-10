@@ -125,7 +125,7 @@ resource "aws_iam_policy" "db_writer_policy" {
         "Action" : [
           "dynamodb:*"
         ],
-        "Resource" : "arn:aws:dynamodb:eu-central-1:439517200646:table/*"
+        "Resource" : "*"
       }
     ]
   })
