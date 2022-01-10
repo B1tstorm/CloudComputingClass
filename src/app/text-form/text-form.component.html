@@ -1,18 +1,19 @@
 <form [formGroup]="keyValueForm">
   <div formArrayName="keyValuePairs">
-    <h2>Key Value Pairs</h2>
-    <button type="button" (click)="addKeyValuePair()">Add another Pair</button>
-    <button type="button" (click)="onSubmit()">Submit</button>
-    <button type="button" (click)="onReset()">Reset</button>
-
-    <div *ngFor="let keyValuePair of keyValuePairs.controls; let i=index">
-      <div [formGroupName]="i">
-        <label for="key">key</label>
-        <input id="key" type="text" formControlName="key" placeholder="key">
-        <label for="value">value</label>
-        <input id="value" type="text" formControlName="value" placeholder="value" (keyup.enter)="addKeyValuePair()">
+    <div class="key-value-pairs-wrapper">
+      <div class="key-value-pairs" *ngFor="let keyValuePair of keyValuePairs.controls; let i=index">
+        <div [formGroupName]="i">
+          <input id="key" type="text" formControlName="key" placeholder="New Key">
+          <p>:</p>
+          <input id="value" type="text" formControlName="value" placeholder="New value" (keyup.enter)="addKeyValuePair()">
+        </div>
       </div>
     </div>
+
+    <button class="button-default" type="button" (click)="addKeyValuePair()">Add another Pair</button>
+    <button class="button-default button-submit" type="button" (click)="onSubmit()">Submit</button>
+    <button class="button-default button-reset" type="button" (click)="onReset()">Reset</button>
+
   </div>
 </form>
 

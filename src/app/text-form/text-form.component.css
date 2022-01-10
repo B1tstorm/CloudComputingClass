@@ -1,0 +1,45 @@
+.key-value-pairs-wrapper {
+  /*border-bottom: 1px solid black;*/
+  margin-bottom: 1rem;
+}
+
+.key-value-pairs {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+
+  padding-bottom: 1rem;
+
+}
+
+.key-value-pairs input {
+  padding: 0.5rem 0.8rem;
+  margin: 0.25rem 0.125rem 0.25rem;
+  flex-grow: 1;
+  font-size: 1.3rem;
+  font-family: freight-text-pro, Georgia, serif;
+  color: black;
+  border-radius: 2rem;
+  border: 1px solid white;
+  text-align: right;
+  border-style: solid;
+}
+
+.key-value-pairs input:focus {
+  outline: none;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+.key-value-pairs input:hover {
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+.key-value-pairs input:last-of-type {
+  text-align: left;
+}
+
+.key-value-pairs p {
+  font-family: freight-text-pro, Georgia, serif;
+  display: inline;
+  font-weight: bold;
+}

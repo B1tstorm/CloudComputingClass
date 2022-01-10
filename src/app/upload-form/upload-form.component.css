@@ -1,28 +1,4 @@
-.file-upload {
 
-  padding: 0.875rem 4rem;
-  width: 100%;
-  font-size: 1rem;
-  font-family: freight-text-pro;
-  text-transform: uppercase;
-  letter-spacing: 0.125rem;
-  border: 1px solid black;
-  border-radius: 10rem;
-  background: rgba(0,0,0,0);
-  transition-property: color, border-color;
-  transition-duration: 250ms;
-  transition-timing-function: ease-in;
-;
-}
 
-.file-upload:hover {
-  border-color: rgba(255,0,0,1);
-  color: rgba(255,0,0,1);
-}
-.form {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
 
-}
 

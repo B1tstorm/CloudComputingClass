@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  NODE_API_URL: 'http://localhost:3333'
 };

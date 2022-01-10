@@ -3,6 +3,7 @@ import {HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders} fr
 import {catchError, last, map, of, tap} from "rxjs";
 
 import {MessageService} from "./message.service";
+import {environment} from "../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,7 @@ export class UploadService {
     const data = new FormData();
     data.append('file', file)
 
-    return this.http.post('/api/file', data, {
+    return this.http.post(environment.NODE_API_URL + '/api/file', data, {
       reportProgress: true,
       observe: "events"
     }).pipe(
@@ -42,7 +43,7 @@ export class UploadService {
     const httpHeaders = new HttpHeaders()
       .set('content-type', 'application/json');
 
-    return this.http.post('/api/json', jsonString, {
+    return this.http.post(environment.NODE_API_URL + '/api/json', jsonString, {
       headers: httpHeaders,
       observe: "body",
       responseType: "json"
