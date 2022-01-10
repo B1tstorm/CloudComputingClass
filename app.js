@@ -2,6 +2,7 @@ import express from 'express'
 import fileUpload from 'express-fileupload'
 import fs from 'fs'
 import crypto from 'crypto'
+import cors from 'cors'
 
 const app = express();
 const port = 3333;
@@ -11,6 +12,7 @@ const encoding = "utf8"
 
 app.use(fileUpload());
 app.use(express.json())
+app.use(cors());
 
 let generateRandomFileName = () => {
     const fileNumber = crypto.randomUUID().slice(0, 6);
