@@ -29,6 +29,7 @@ def lambda_handler(event, context):
       
       
 def convert_to_flat_csv(file_path):
+  print("#####\nfile_path: " + file_path + "\n######")
   with open(file_path) as file:
     df = pd.DataFrame(file)
   
