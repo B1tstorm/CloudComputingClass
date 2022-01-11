@@ -35,7 +35,7 @@ app.post('/api/file', (req, res) => {
     }
 
     const s3 = new aws.S3()
-    const bucketname = ''
+    const bucketname = 'backendbucket-123'
     let uploadParams = {Bucket: bucketname, Key: '', Body: ''};
 
     // ----------- Alternative 1 --------------------------------------------------------------------
@@ -48,12 +48,14 @@ app.post('/api/file', (req, res) => {
     })
 
     const fileStream = fs.createReadStream(filePath);
+    console.log("File Path" + filePath);
     fileStream.on('error', (err) => {
         console.log('Error reading file', err)
     });
 
     uploadParams.Body = fileStream;
-    uploadParams.key = path.basename(filePath)
+    uploadParams.Key = path.basename(filePath);
+    console.log(path.basename("basename" + filePath + "key: " + uploadParams.Key));
 
     // // ----------- Alternative 2 --------------------------------------------------------------------
     // // Gibt direkt den gesendeten InputBuffer weiter ohne ihn zu speichern
@@ -68,13 +70,6 @@ app.post('/api/file', (req, res) => {
         } if (data) {
             console.log('Upload Success', data.Location);
         }
-    })
-
-
-
-    fs.writeFile(filePath, bufferedFile, encoding, (error) => {
-        if (error) return console.log(error);
-        console.log(`The file has been saved to ${filePath}`);
     })
 
     let jsonResponse = {
