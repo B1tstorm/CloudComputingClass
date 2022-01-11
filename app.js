@@ -19,20 +19,25 @@ app.use(express.json())
 app.use(cors());
 
 
-let generateRandomFileName = () => {
-    const fileNumber = crypto.randomUUID().slice(0, 6);
-    const sessionNumber = crypto.randomUUID().slice(0, 6)
+let generateFilename = (fileNumber, sessionNumber) => {
     const fileType = ".json"
     return `file-${fileNumber}-session-${sessionNumber}${fileType}`;
 }
 
 websocketServer.on('connection', (websocketClient) => {
-    const clientId = crypto.randomUUID().slice(0,8);
-    clients.set(clientId, websocketClient);
+
     websocketClient.send('{"Status":"Connected"}');
 
+    websocketClient.on('connect', ()=> {
+        const uuid = "";
+        if(clients.get(uuid)) {
+            let client = clients.get(uuid)
+            client.websocket = websocketClient;
+        }
+    })
+
     websocketClient.on('message', (message) => {
-        message.
+
     })
 
 
@@ -40,7 +45,7 @@ websocketServer.on('connection', (websocketClient) => {
 
 app.post('/api/file', (req, res) => {
     console.log(`File successfully uploaded: ${req.files.file.name}`)
-    const bufferedFile = req.files.file.data;gt
+    const bufferedFile = req.files.file.data;
     try {
         JSON.parse(bufferedFile.toString(encoding))
     } catch (error) {
@@ -51,7 +56,7 @@ app.post('/api/file', (req, res) => {
 
 
 
-    const filePath = writeDirectory + generateRandomFileName();
+    const filePath = writeDirectory + generateFilename();
 
     fs.writeFile(filePath, bufferedFile, encoding, (error) => {
         if (error) return console.log(error);
@@ -74,15 +79,34 @@ app.post('/api/file', (req, res) => {
 app.post('/api/json', (req, res) => {
     console.log(req.body);
 
-    const filePath = writeDirectory + generateRandomFileName()
+    const newClientUuid = crypto.randomUUID().slice(0, 8);
+    const newFileUuid = crypto.randomUUID().slice((0, 6))
+    const newSessionUuid = crypto.randomUUID().slice((0, 6))
+    const generatedFileName = generateFilename(newFileUuid, newSessionUuid)
+
+    const client = {
+        filename: generatedFileName,
+        sessionUuid: newSessionUuid,
+        websocket: null
+    }
+
+    clients.set(newClientUuid,client)
+
+    const filePath = writeDirectory + generateFilename()
     const jsonString = JSON.stringify(req.body);
 
+    if (error) return console.log(error);
     fs.writeFile(filePath,jsonString, encoding, (error) => {
-        if (error) return console.log(error);
         console.log(`The JSON has been saved as file to ${filePath}`);
     })
 
-    res.sendStatus(200)
+    let jsonResponse = {
+        "status": "OK",
+        "message": "File successfully uploaded",
+        "websocket": newClientUuid
+    }
+    res.status(200);
+    res.send(jsonResponse);
 })
 
 app.get('/', (req, res) => {
