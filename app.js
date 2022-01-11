@@ -54,15 +54,15 @@ app.post('/api/file', (req, res) => {
     });
 
     uploadParams.Body = fileStream;
-    uploadParams.Key = path.basename(filePath);
+    uploadParams.Key = "input/" + path.basename(filePath);
     console.log(path.basename("basename" + filePath + "key: " + uploadParams.Key));
 
-    // // ----------- Alternative 2 --------------------------------------------------------------------
-    // // Gibt direkt den gesendeten InputBuffer weiter ohne ihn zu speichern
-    //
-    // uploadParams.Body = bufferedFile;
-    // uploadParams.key = generateRandomFileName();
-    // // ----------- Alternative 2 Ende --------------------------------------------------------------------
+    // ----------- Alternative 2 --------------------------------------------------------------------
+    // Gibt direkt den gesendeten InputBuffer weiter ohne ihn zu speichern
+
+    uploadParams.Body = bufferedFile;
+    uploadParams.Key = generateRandomFileName();
+    // ----------- Alternative 2 Ende --------------------------------------------------------------------
 
     s3.upload(uploadParams, (err, data) => {
         if(err) {
@@ -90,10 +90,33 @@ app.post('/api/json', (req, res) => {
 
     const filePath = writeDirectory + generateRandomFileName()
     const jsonString = JSON.stringify(req.body);
+    const id = crypto.randomUUID().slice(0,6);
+    const idPrefixedJsonString = `{"id":"${id}",` + jsonString.substring(1);
 
-    fs.writeFile(filePath,jsonString, encoding, (error) => {
+    fs.writeFile(filePath,idPrefixedJsonString, encoding, (error) => {
         if (error) return console.log(error);
         console.log(`The JSON has been saved as file to ${filePath}`);
+    })
+
+    const fileStream = fs.createReadStream(filePath);
+    console.log("File Path" + filePath);
+    fileStream.on('error', (err) => {
+        console.log('Error reading file', err)
+    });
+
+    const s3 = new aws.S3();
+    const bucketname = 'backendbucket-123'
+    let uploadParams = {Bucket: bucketname, Key: '', Body: ''};
+
+    uploadParams.Key = "input/" + path.basename(filePath);
+    uploadParams.Body = fileStream
+
+    s3.upload(uploadParams, (err, data) => {
+        if(err) {
+            console.log('Error', err);
+        } if (data) {
+            console.log('Upload Success', data.Location);
+        }
     })
 
     res.sendStatus(200)
