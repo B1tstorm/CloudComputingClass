@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "lab6-s3" {
-  bucket = "lab6-project-s3"
+  bucket = "lab6-project-s3v2"
   acl    = "private"
   tags = {
     Name        = "lab6-s3"

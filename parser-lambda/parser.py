@@ -21,7 +21,7 @@ def lambda_handler(event, context):
       s3_client.download_file(bucket, fileName, file_local_path)
       
       convert_to_flat_csv(file_local_path)
-      s3_client.upload_file("/tmp/test.csv", "lab6-project-s3", "{}.csv".format(uuid.uuid4()))
+      s3_client.upload_file("/tmp/test.csv", "lab6-project-s3v2", "{}.csv".format(uuid.uuid4()))
 
       #call the db-writer-lambda
       boto3.client('lambda').invoke(FunctionName="db-writer-lambda",InvocationType='Event',Payload=json.dumps(event))
