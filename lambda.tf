@@ -14,8 +14,8 @@ resource "aws_lambda_function" "parser-lambda" {
 }
 
 resource "aws_lambda_layer_version" "lambda-layer" {
-  filename   = "pandas_layer.zip"
-  layer_name = "pandas3_8"
+  filename    = "pandas_layer.zip"
+  layer_name  = "pandas3_8"
   description = "Pandas lib for python3.8"
 
   compatible_runtimes = ["python3.8"]

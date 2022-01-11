@@ -172,15 +172,6 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     filter_prefix       = "input/"
     filter_suffix       = ".json"
   }
-
-  #funktion muss micht getriggert werden. Sie wird von der anderen Funkltion aufgerufen
-  #   lambda_function {
-  #     lambda_function_arn = aws_lambda_function.db-writer-lambda.arn
-  #     events              = ["s3:ObjectCreated:*"]
-  #     filter_prefix       = "input/"
-  #     filter_suffix       = ".png"
-  #   }
-
   depends_on = [
     aws_lambda_permission.allow_bucket_writer,
     aws_lambda_permission.allow_bucket_parser
