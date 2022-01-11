@@ -3,6 +3,8 @@ import fileUpload from 'express-fileupload'
 import fs from 'fs'
 import crypto from 'crypto'
 import cors from 'cors'
+import aws from 'aws-sdk'
+import path from 'path'
 
 const app = express();
 const port = 3333;
@@ -32,9 +34,43 @@ app.post('/api/file', (req, res) => {
         return;
     }
 
+    const s3 = new aws.S3()
+    const bucketname = ''
+    let uploadParams = {Bucket: bucketname, Key: '', Body: ''};
 
-
+    // ----------- Alternative 1 --------------------------------------------------------------------
+    // Speichert das ankommende File lokal zwischen und liest es dann erneut, um AWS Tutorial nachzumachen.
     const filePath = writeDirectory + generateRandomFileName();
+
+    fs.writeFile(filePath, bufferedFile, encoding, (error) => {
+        if (error) return console.log(error);
+        console.log(`The file has been saved to ${filePath}`);
+    })
+
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.on('error', (err) => {
+        console.log('Error reading file', err)
+    });
+
+    uploadParams.Body = fileStream;
+    uploadParams.key = path.basename(filePath)
+
+    // // ----------- Alternative 2 --------------------------------------------------------------------
+    // // Gibt direkt den gesendeten InputBuffer weiter ohne ihn zu speichern
+    //
+    // uploadParams.Body = bufferedFile;
+    // uploadParams.key = generateRandomFileName();
+    // // ----------- Alternative 2 Ende --------------------------------------------------------------------
+
+    s3.upload(uploadParams, (err, data) => {
+        if(err) {
+            console.log('Error', err);
+        } if (data) {
+            console.log('Upload Success', data.Location);
+        }
+    })
+
+
 
     fs.writeFile(filePath, bufferedFile, encoding, (error) => {
         if (error) return console.log(error);
