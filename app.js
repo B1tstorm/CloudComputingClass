@@ -1,10 +1,13 @@
 import express from 'express'
 import fileUpload from 'express-fileupload'
 import fs from 'fs'
-import crypto from 'crypto'
+
 import cors from 'cors'
 import aws from 'aws-sdk'
 import path from 'path'
+
+import * as utilities from './src/utilities.js'
+import * as awsConnect from './src/awsConnect.js'
 
 const app = express();
 const port = 3333;
@@ -12,20 +15,16 @@ const writeDirectory = "./write/";
 const readDirectory = "./read/";
 const encoding = "utf8"
 
-app.use(fileUpload());
-app.use(express.json())
-app.use(cors());
-
-let generateRandomFileName = () => {
-    const fileNumber = crypto.randomUUID().slice(0, 6);
-    const sessionNumber = crypto.randomUUID().slice(0, 6)
-    const fileType = ".json"
-    return `file-${fileNumber}-session-${sessionNumber}${fileType}`;
-}
+app.use(fileUpload());  // use fileupload middleware for convenience
+app.use(express.json()) // enable json parsing for middleware
+app.use(cors());    // enable cross-origin-resource-sharing
 
 app.post('/api/file', (req, res) => {
     console.log(`File successfully uploaded: ${req.files.file.name}`)
+
+    // Data is received as streambuffer
     const bufferedFile = req.files.file.data;
+    // validate JSON entity
     try {
         JSON.parse(bufferedFile.toString(encoding))
     } catch (error) {
@@ -34,43 +33,24 @@ app.post('/api/file', (req, res) => {
         return;
     }
 
-    const s3 = new aws.S3()
-    const bucketname = 'backendbucket-123'
-    let uploadParams = {Bucket: bucketname, Key: '', Body: ''};
+    const filePath = writeDirectory + utilities.generateRandomFileName();
 
-    // ----------- Alternative 1 --------------------------------------------------------------------
-    // Speichert das ankommende File lokal zwischen und liest es dann erneut, um AWS Tutorial nachzumachen.
-    const filePath = writeDirectory + generateRandomFileName();
-
+    // save file locally
     fs.writeFile(filePath, bufferedFile, encoding, (error) => {
         if (error) return console.log(error);
         console.log(`The file has been saved to ${filePath}`);
     })
 
+    const fileName = path.basename(filePath)
     const fileStream = fs.createReadStream(filePath);
     console.log("File Path" + filePath);
     fileStream.on('error', (err) => {
         console.log('Error reading file', err)
     });
 
-    uploadParams.Body = fileStream;
-    uploadParams.Key = "input/" + path.basename(filePath);
-    console.log(path.basename("basename" + filePath + "key: " + uploadParams.Key));
+    console.log(`Filename: ${fileName}, Filepath: ${filePath}`);
 
-    // ----------- Alternative 2 --------------------------------------------------------------------
-    // Gibt direkt den gesendeten InputBuffer weiter ohne ihn zu speichern
-
-    uploadParams.Body = bufferedFile;
-    uploadParams.Key = generateRandomFileName();
-    // ----------- Alternative 2 Ende --------------------------------------------------------------------
-
-    s3.upload(uploadParams, (err, data) => {
-        if(err) {
-            console.log('Error', err);
-        } if (data) {
-            console.log('Upload Success', data.Location);
-        }
-    })
+    awsConnect.upload(fileStream, fileName);
 
     let jsonResponse = {
         "status": "OK",
@@ -86,45 +66,28 @@ app.post('/api/file', (req, res) => {
 });
 
 app.post('/api/json', (req, res) => {
-    console.log(req.body);
+    // req.body is JSON object and needs to be stringified
+    console.log(`JSON received: ${JSON.stringify(req.body)}`);
 
-    const filePath = writeDirectory + generateRandomFileName()
-    const jsonString = JSON.stringify(req.body);
-    const id = crypto.randomUUID().slice(0,6);
-    const idPrefixedJsonString = `{"id":"${id}",` + jsonString.substring(1);
+    let generatedFileName = utilities.generateRandomFileName();
 
+    //local path to write temp file to
+    const filePath = writeDirectory + generatedFileName
+
+    // prefix received JSON file with id for storing it in database
+    const idPrefixedJsonString = utilities.prefixJson(req.body);
+
+    // save file locally
     fs.writeFile(filePath,idPrefixedJsonString, encoding, (error) => {
         if (error) return console.log(error);
         console.log(`The JSON has been saved as file to ${filePath}`);
     })
 
     const fileStream = fs.createReadStream(filePath);
-    console.log("File Path" + filePath);
-    fileStream.on('error', (err) => {
-        console.log('Error reading file', err)
-    });
 
-    const s3 = new aws.S3();
-    const bucketname = 'backendbucket-123'
-    let uploadParams = {Bucket: bucketname, Key: '', Body: ''};
-
-    uploadParams.Key = "input/" + path.basename(filePath);
-    uploadParams.Body = fileStream
-
-    s3.upload(uploadParams, (err, data) => {
-        if(err) {
-            console.log('Error', err);
-        } if (data) {
-            console.log('Upload Success', data.Location);
-        }
-    })
-
+    awsConnect.upload(fileStream, generatedFileName)
     res.sendStatus(200)
 })
-
-app.get('/', (req, res) => {
-    res.send('Server is listening at port ' + port);
-});
 
 const server = app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}/api`)
