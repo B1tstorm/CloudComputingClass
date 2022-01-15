@@ -1,6 +1,7 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Subscription} from "rxjs";
-import {JsonResponse, UploadService} from "../upload.service";
+import {UploadService} from "../upload.service";
+import {MessageService} from "../message.service";
 
 @Component({
   selector: 'app-upload-form',
@@ -9,7 +10,7 @@ import {JsonResponse, UploadService} from "../upload.service";
 })
 export class UploadFormComponent implements OnInit {
 
-  jsonResponse: JsonResponse | undefined;
+  message = '';
 
   file: File | null = null;
 
@@ -20,6 +21,7 @@ export class UploadFormComponent implements OnInit {
 
   constructor(
     private uploadService: UploadService,
+    public messageService: MessageService
   ) { }
 
   onFileInput(files: FileList | null): void {
@@ -30,11 +32,10 @@ export class UploadFormComponent implements OnInit {
 
   onSubmit() {
     if(this.file) {
-      this.uploadService
-        .uploadFile(this.file)
-        .subscribe(response => {
-          this.jsonResponse = {...response}
+      this.uploadService.uploadFile(this.file).subscribe(
+        msg => {
           this.fileInputElement.nativeElement.value = '';
+          this.message = msg;
         }
       )
     }
