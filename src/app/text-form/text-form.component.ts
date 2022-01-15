@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormArray} from "@angular/forms";
-import {UploadService} from "../upload.service";
+import {JsonResponse, UploadService} from "../upload.service";
 
 @Component({
   selector: 'app-text-form',
@@ -9,7 +9,7 @@ import {UploadService} from "../upload.service";
 })
 export class TextFormComponent implements OnInit {
 
-  message: string = "";
+  jsonResponse: JsonResponse | undefined;
 
   keyValueForm = this.fb.group({
     keyValuePairs: this.fb.array([
@@ -35,7 +35,11 @@ export class TextFormComponent implements OnInit {
     let formInput: string = JSON.stringify(this.keyValueForm.value)
     if(formInput) {
       this.restructureJson(formInput)
-      this.uploadService.sendJson(this.restructureJson(formInput)).subscribe()
+      this.uploadService.sendJson(this.restructureJson(formInput)).subscribe(
+        response => {this.jsonResponse = {...response}}
+      )
+      this.keyValuePairs.clear();
+      this.addKeyValuePair();
     }
   }
 

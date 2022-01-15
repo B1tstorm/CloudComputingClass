@@ -33,21 +33,19 @@ export class UploadService {
       .pipe(catchError(this.handleError));
   }
 
-  sendJson(jsonString: String) {
+  sendJson(jsonString: String): Observable<JsonResponse> {
     if (!jsonString) {
-      return of("No jsonString provided")
+      console.error("No jsonString provided")
+      return new Observable<JsonResponse>();
     }
 
     const httpHeaders = new HttpHeaders()
       .set('content-type', 'application/json');
 
     return this.http.post<JsonResponse>(environment.NODE_API_URL + '/api/file', jsonString, {
-      headers: httpHeaders,
-      observe: "body",
-      responseType: "json"
-    }).pipe(
-      catchError(this.handleJsonError(jsonString))
-    )
+      headers: httpHeaders
+    })
+      .pipe(catchError(this.handleError))
   }
 
   private handleJsonError(string: String) {

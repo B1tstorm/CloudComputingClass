@@ -14,6 +14,8 @@
     <button class="button-default button-submit" type="button" (click)="onSubmit()">Submit</button>
     <button class="button-default button-reset" type="button" (click)="onReset()">Reset</button>
 
+    <p *ngIf="jsonResponse">{{jsonResponse.message}}</p>
+
   </div>
 </form>
 
