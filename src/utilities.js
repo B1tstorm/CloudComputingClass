@@ -1,18 +1,22 @@
 import crypto from 'crypto'
 
 export function generateRandomFileName() {
-    const fileNumber = generateUUID(6)
-    const sessionNumber = generateUUID(6)
+    const fileNumber = generateUUID(12)
     const fileType = ".json"
-    return `file-${fileNumber}-session-${sessionNumber}${fileType}`;
+    return `${fileNumber}${fileType}`;
 }
 
-export function generateUUID(length) {
+export function generateUUID(length = 6) {
     return crypto.randomUUID().slice(0, length);
 }
 
 export function prefixJson(json) {
     const jsonString = JSON.stringify(json);
-    const id = crypto.randomUUID().slice(0,6);
+    const id = generateUUID();
     return `{"id":"${id}",` + jsonString.substring(1);
+}
+
+export function isFile(req) {
+    console.log(`Request contains File: ${req.hasOwnProperty('files')}`);
+    return req.hasOwnProperty('files');
 }
