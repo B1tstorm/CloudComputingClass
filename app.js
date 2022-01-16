@@ -46,7 +46,7 @@ websocketServer.on('connection', (websocketConnection, connectionRequest) => {
     const connectionParameters = parameters;
     console.log(connectionParameters);
 
-    websocketConnection.send("Hey there is a connection")
+    websocketConnection.send(JSON.stringify({response: "super"}))
     registeredClients.set(parameters, websocketConnection);
 
     // users.saveUser(parameters, websocketConnection);
@@ -62,12 +62,6 @@ websocketServer.on('connection', (websocketConnection, connectionRequest) => {
 
     // sendFromAnywhere("Wow")
 })
-
-websocketServer.clients.forEach((client) => {
-    client.send("Wow")
-})
-
-
 
 function sendFromAnywhere(message) {
     // const existingWebsocket = registeredClients.get(123123);
@@ -92,7 +86,7 @@ app.post('/api/parsed', (req, res) => {
         console.log("Received JSON did not content clientId")
     }
     if(registeredClients.has(object.clientid)) {
-        registeredClients.get(object.clientid).send("This comes from another Endpoint.")
+        registeredClients.get(object.clientid).send(JSON.stringify({answer : "This is the answer", clientId: object.clientid}))
     } else {
         console.log("Client is not registered, cliendId: " + object.clientid)
     }
@@ -166,6 +160,7 @@ app.post('/api/file', (req, res) => {
     aws.upload(fileStream, fileName);
 
     const clientId = utilities.generateUUID();
+    console.log("client registered with id: " + clientId)
     // registeredClients.set(clientId, fileName.slice(0, -5))
     jsonResponse.clientId = clientId;
 
@@ -174,8 +169,8 @@ app.post('/api/file', (req, res) => {
     // websocketServer.clients.forEach((client) => client.send("hallo")) // works
 
     // users.userList["123123"].send("hallo was geht"); // works
-    const param = "123123"
-    registeredClients.get(param).send("hallo da.")
+    // const param = "123123"
+    // registeredClients.get(param).send("hallo da.")
 
     res.status(200);
     res.send(jsonResponse);
