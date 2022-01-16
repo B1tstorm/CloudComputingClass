@@ -1,6 +1,8 @@
 import express from 'express'
 import fileUpload from 'express-fileupload'
 import fs from 'fs'
+import * as websocket from 'ws'
+import http from 'http'
 
 import cors from 'cors'
 import path from 'path'
@@ -10,6 +12,8 @@ import * as aws from './src/awsConnect.js'
 
 const app = express();
 const port = 3333;
+const server = http.createServer(app)
+const websocketServer = new websocket.WebSocketServer({ noServer: true, path: "/websocket"})
 const writeDirectory = "./write/";
 const encoding = "utf8"
 
@@ -17,7 +21,50 @@ app.use(fileUpload());  // use fileupload middleware for convenience
 app.use(express.json()) // enable json parsing for middleware
 app.use(cors());    // enable cross-origin-resource-sharing
 
-const clients = new Map();
+const registeredClients = new Map();
+
+server.on("upgrade", (request, socket, head) => {
+    websocketServer.handleUpgrade(request, socket, head, (websocket) => {
+        websocketServer.emit("connection", websocket, request);
+    })
+})
+
+websocketServer.on('connection', (websocketConnection, connectionRequest) => {
+    const [_path, parameters] = connectionRequest?.url?.split("=");
+    const connectionParameters = parameters;
+    console.log(connectionParameters);
+
+    websocketConnection.send("Hey there is a connection")
+    registeredClients.set(parameters, WebSocket.class() websocketConnection);
+
+    console.log(`Registered Client: ${parameters} with ` + registeredClients.get(parameters))
+    console.log(registeredClients.get(parameters))
+    websocketConnection.on("message", (message) => {
+        websocketConnection.send("You sent: " +  message);
+    })
+
+    sendFromAnywhere("Wow")
+})
+
+websocketServer.clients.forEach((client) => {
+    client.send("Wow")
+})
+
+
+
+function sendFromAnywhere(message) {
+    // const existingWebsocket = registeredClients.get(123123);
+    // existingWebsocket.send("hallo");
+
+    websocketServer.clients.forEach((client) => {
+        client.send(message)
+    })
+}
+
+
+// websocketServer.on('request', (request) => {
+//     console.log(`${new Date()} – New Connection from: ${request.origin}`)
+// })
 
 app.post('/api/file', (req, res) => {
 
@@ -83,13 +130,19 @@ app.post('/api/file', (req, res) => {
     aws.upload(fileStream, fileName);
 
     const clientId = utilities.generateUUID();
-    clients.set(clientId, fileName.slice(0, -5))
+    // registeredClients.set(clientId, fileName.slice(0, -5))
     jsonResponse.clientId = clientId;
+
+    // sendFromAnywhere("Outside Context")
+
+    // websocketServer.clients.forEach((client) => client.send("hallo")) // works
+
+    registeredClients.get(123123).send("hallo da.")
 
     res.status(200);
     res.send(jsonResponse);
 });
 
-const server = app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Listening at http://localhost:${port}/api`)
 })
