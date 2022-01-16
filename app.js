@@ -23,6 +23,18 @@ app.use(cors());    // enable cross-origin-resource-sharing
 
 const registeredClients = new Map();
 
+class Users {
+    constructor() {
+        this.userList = {};
+        this.saveUser = this.saveUser.bind(this)
+    }
+    saveUser(userId, websocket) {
+        this.userList[userId] = websocket;
+    }
+}
+
+const users = new Users();
+
 server.on("upgrade", (request, socket, head) => {
     websocketServer.handleUpgrade(request, socket, head, (websocket) => {
         websocketServer.emit("connection", websocket, request);
@@ -35,7 +47,12 @@ websocketServer.on('connection', (websocketConnection, connectionRequest) => {
     console.log(connectionParameters);
 
     websocketConnection.send("Hey there is a connection")
-    registeredClients.set(parameters, WebSocket.class() websocketConnection);
+    registeredClients.set(parameters, websocketConnection);
+
+    // users.saveUser(parameters, websocketConnection);
+
+    // console.log(`Registered Client: ${parameters} with ${users.userList[parameters]}`)
+    // console.log(users.userList[parameters])
 
     console.log(`Registered Client: ${parameters} with ` + registeredClients.get(parameters))
     console.log(registeredClients.get(parameters))
@@ -43,7 +60,7 @@ websocketServer.on('connection', (websocketConnection, connectionRequest) => {
         websocketConnection.send("You sent: " +  message);
     })
 
-    sendFromAnywhere("Wow")
+    // sendFromAnywhere("Wow")
 })
 
 websocketServer.clients.forEach((client) => {
@@ -65,6 +82,25 @@ function sendFromAnywhere(message) {
 // websocketServer.on('request', (request) => {
 //     console.log(`${new Date()} – New Connection from: ${request.origin}`)
 // })
+app.post('/api/parsed', (req, res) => {
+    console.log("req.body = " + req.body);
+    console.log("parsed.req.body = " + JSON.stringify(req.body));
+    const object = req.body;
+    console.log(object.clientid)
+    console.log(object.asda)
+    if(object.clientid === undefined) {
+        console.log("Received JSON did not content clientId")
+    }
+    if(registeredClients.has(object.clientid)) {
+        registeredClients.get(object.clientid).send("This comes from another Endpoint.")
+    } else {
+        console.log("Client is not registered, cliendId: " + object.clientid)
+    }
+
+    res.sendStatus(200);
+
+});
+
 
 app.post('/api/file', (req, res) => {
 
@@ -137,7 +173,9 @@ app.post('/api/file', (req, res) => {
 
     // websocketServer.clients.forEach((client) => client.send("hallo")) // works
 
-    registeredClients.get(123123).send("hallo da.")
+    // users.userList["123123"].send("hallo was geht"); // works
+    const param = "123123"
+    registeredClients.get(param).send("hallo da.")
 
     res.status(200);
     res.send(jsonResponse);
