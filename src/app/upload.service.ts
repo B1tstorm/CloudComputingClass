@@ -8,6 +8,7 @@ export interface JsonResponse {
   status: string,
   message: string,
   clientId: number,
+  data: object
 }
 
 @Injectable({

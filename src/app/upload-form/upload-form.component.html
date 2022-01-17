@@ -26,7 +26,12 @@
     Reset
   </button>
 
-  <p *ngIf="jsonResponse">{{jsonResponse.clientId}}</p>
+  <div *ngIf="jsonResponse">
+    <h2>HTTP Response</h2>
+    <p>Status: <span class="italic"> {{jsonResponse.status}}</span></p>
+    <p>Client ID:<span class="italic"> {{jsonResponse.clientId}}</span></p>
+    <p>Message:<span class="italic"> {{jsonResponse.message}}</span></p>
+  </div>
 
   <p *ngIf="stringResponse">{{stringResponse}}</p>
 

@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormArray} from "@angular/forms";
 import {JsonResponse, UploadService} from "../upload.service";
+import {webSocket} from "rxjs/webSocket";
 
 @Component({
   selector: 'app-text-form',
@@ -10,6 +11,8 @@ import {JsonResponse, UploadService} from "../upload.service";
 export class TextFormComponent implements OnInit {
 
   jsonResponse: JsonResponse | undefined;
+
+  stringResponse: String | undefined;
 
   keyValueForm = this.fb.group({
     keyValuePairs: this.fb.array([
@@ -35,8 +38,17 @@ export class TextFormComponent implements OnInit {
     let formInput: string = JSON.stringify(this.keyValueForm.value)
     if(formInput) {
       this.restructureJson(formInput)
-      this.uploadService.sendJson(this.restructureJson(formInput)).subscribe(
-        response => {this.jsonResponse = {...response}}
+      this.uploadService.sendJson(this.restructureJson(formInput))
+        .subscribe(response => {
+          this.jsonResponse = {...response}
+
+          const subject = webSocket<String>("ws://localhost:3333/websocket?id=" + this.jsonResponse.clientId);
+          subject.subscribe(
+            msg => this.stringResponse = JSON.stringify(msg),
+            error => console.log(error),
+            () => console.log("complete")
+          )
+        }
       )
       this.keyValuePairs.clear();
       this.addKeyValuePair();

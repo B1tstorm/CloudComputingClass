@@ -8,6 +8,24 @@ h1 {
   font-size: 5rem;
 }
 
+h2 {
+  font-family: freight-text-pro, Georgia, serif;
+}
+
+p {
+  font-size: 1.3rem;
+  font-family: freight-text-pro, Georgia, serif;
+  font-weight: 400;
+  color: rgba(0,0,0,0.95);
+}
+.italic {
+  font-size: 1.3rem;
+  font-family: freight-text-pro, Georgia, serif;
+  font-weight: 600;
+  color: rgba(0,0,0,0.95);
+}
+
+
 .container {
   width: 80%;
   margin-left: auto;

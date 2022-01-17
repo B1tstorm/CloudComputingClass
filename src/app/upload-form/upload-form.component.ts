@@ -39,9 +39,7 @@ export class UploadFormComponent implements OnInit {
         .subscribe(response => {
             this.jsonResponse = {...response}
             this.fileInputElement.nativeElement.value = '';
-
-            console.log("Hier bin ich jetzt")
-
+            
             const subject = webSocket<String>("ws://localhost:3333/websocket?id=" + this.jsonResponse.clientId);
             subject.subscribe(
               msg => this.stringResponse = JSON.stringify(msg),
