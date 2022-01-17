@@ -34,7 +34,7 @@ websocketServer.on('connection', (websocketConnection, connectionRequest) => {
     const connectionId = parameters;
     websocketConnection.isAlive = true;
 
-    websocketConnection.send(JSON.stringify({response: "super"}))
+    websocketConnection.send(JSON.stringify({response: `Websocket established for clientId: ${connectionId}`}))
     registeredClients.set(connectionId, websocketConnection);
 
     log.info(`Registered Client with clientId: ${parameters}`)
@@ -56,7 +56,7 @@ websocketServer.on('connection', (websocketConnection, connectionRequest) => {
     })
 })
 
-// healthcheck for websockets
+// Healthcheck for Websockets
 const interval = setInterval( function healthCheck() {
     registeredClients.forEach((client, clientId) => {
         if(client.isAlive === false) {
@@ -67,7 +67,7 @@ const interval = setInterval( function healthCheck() {
         client.isAlive = false;
         client.ping();
     })
-}, 5000)
+}, 10000)
 
 app.post('/api/parsed', (req, res) => {
     log.debug("req.body = " + req.body)
@@ -79,12 +79,13 @@ app.post('/api/parsed', (req, res) => {
     }
     if (registeredClients.has(object.clientid)) {
         registeredClients.get(object.clientid).send(JSON.stringify({
-            answer: "This is the answer",
+            message: `File has been parsed to: ${object.clientid}.csv`,
             clientId: object.clientid
         }))
     } else {
         log.info("Client is not registered, cliendId: " + object.clientid)
     }
+    // aws.downloadFile("input/0356b7b5-151.json")
 
     res.sendStatus(200);
 });
@@ -152,7 +153,7 @@ app.post('/api/file', (req, res) => {
 
     aws.upload(fileStream, fileName);
 
-    const clientId = utilities.generateUuid();
+    const clientId = generatedFileName.slice(0,6);
     log.info("client registered with id: " + clientId)
     jsonResponse.clientId = clientId;
 

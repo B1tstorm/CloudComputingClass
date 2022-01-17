@@ -2,9 +2,10 @@ import crypto from 'crypto'
 import {log} from './logging.js'
 
 export function generateRandomFileName() {
-    const fileNumber = generateUuid(12)
+    const clientId = generateUuid()
+    const fileNumber = generateUuid()
     const fileType = ".json"
-    return `${fileNumber}${fileType}`;
+    return `${clientId}-${fileNumber}${fileType}`;
 }
 
 export function generateUuid(length = 6) {
