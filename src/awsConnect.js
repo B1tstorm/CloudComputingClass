@@ -1,5 +1,5 @@
 import aws from "aws-sdk";
-import path from 'path'
+import {log} from './logging.js'
 
 
 const s3 = new aws.S3()
@@ -15,10 +15,10 @@ export function upload(filestream, fileName) {
 
     s3.upload(uploadParams, (err, data) => {
         if (err) {
-            console.log('Error', err);
+            log.info('Error', err);
         }
         if (data) {
-            console.log('Upload Success', data.Location);
+            log.info('Upload Success', data.Location);
         }
     })
 
