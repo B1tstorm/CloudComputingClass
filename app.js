@@ -56,6 +56,7 @@ websocketServer.on('connection', (websocketConnection, connectionRequest) => {
     })
 })
 
+// healthcheck for websockets
 const interval = setInterval( function healthCheck() {
     registeredClients.forEach((client, clientId) => {
         if(client.isAlive === false) {
