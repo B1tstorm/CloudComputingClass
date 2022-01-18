@@ -8,14 +8,14 @@ import path from 'path'
 
 import * as utilities from './src/utilities.js'
 import {log} from './src/logging.js'
-import * as aws from './src/awsConnect.js'
+import * as aws from './src/awsService.js'
 
 const app = express();
 const port = 3333;
 const server = http.createServer(app)
 const websocketServer = new websocket.WebSocketServer({noServer: true, path: "/websocket"})
-const writeDirectory = "./write/";
-const encoding = "utf8"
+const WRITE_DIR = "./write/";
+const ENCODING = "utf8"
 const registeredClients = new Map();
 
 app.use(fileUpload());  // use fileupload middleware for convenience
@@ -85,7 +85,8 @@ app.post('/api/parsed', (req, res) => {
     } else {
         log.info("Client is not registered, cliendId: " + object.clientid)
     }
-    // aws.downloadFile("input/0356b7b5-151.json")
+
+    aws.deleteFile("input/004a6b-a32bc2.json")
 
     res.sendStatus(200);
 });
@@ -95,7 +96,7 @@ app.post('/api/file', (req, res) => {
 
     let generatedFileName = utilities.generateRandomFileName();
     //local path to write temp file to
-    const filePath = writeDirectory + generatedFileName
+    const filePath = WRITE_DIR + generatedFileName
 
     let jsonResponse = {
         status: "",
@@ -109,14 +110,14 @@ app.post('/api/file', (req, res) => {
         const bufferedFile = req.files.file.data;
         // validate JSON entity
         try {
-            JSON.parse(bufferedFile.toString(encoding))
+            JSON.parse(bufferedFile.toString(ENCODING))
         } catch (error) {
             log.info("File was not valid JSON\n" + error)
             res.sendStatus(400);
             return;
         }
         // save file locally
-        fs.writeFile(filePath, bufferedFile, encoding, (error) => {
+        fs.writeFile(filePath, bufferedFile, ENCODING, (error) => {
             if (error) return log.info(error);
             log.info(`The file has been saved to ${filePath}`);
         })
@@ -134,7 +135,7 @@ app.post('/api/file', (req, res) => {
         // prefix received JSON file with id for storing it in database
         const idPrefixedJsonString = utilities.prefixJson(req.body);
         // save file locally
-        fs.writeFile(filePath, idPrefixedJsonString, encoding, (error) => {
+        fs.writeFile(filePath, idPrefixedJsonString, ENCODING, (error) => {
             if (error) return log.info(error);
             log.info(`The JSON has been saved as file to ${filePath}`);
         })
